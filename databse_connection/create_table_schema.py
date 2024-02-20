@@ -1,6 +1,7 @@
-from sqlalchemy.orm import DeclarativeBase, Session, relationship
+from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy import Column, String, DateTime, BigInteger, Integer, ForeignKey
 from datetime import datetime, timedelta
+from sqlalchemy.exc import IntegrityError
 
 
 
@@ -192,3 +193,9 @@ def create_database(engine, session, dummy_data):
             librarian1
         ])
         session.commit()
+
+def try_session_commit(session):
+    try:
+        session.commit()
+    except IntegrityError as e:
+        print(e._message())

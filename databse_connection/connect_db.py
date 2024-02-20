@@ -1,11 +1,10 @@
 import os
 from sqlalchemy import text, create_engine, URL, inspect
 from sqlalchemy.orm import Session
-# from sqlalchemy.ext.automap import automap_base
 from dotenv import load_dotenv
-from databse_connection.create_table_schema import create_database, Librarian, Magazine, MemberBooks, User, Books,\
-    Publisher, Record, MemberMagazine
-# import create_table , 
+from create_table_schema import create_database, Librarian, Magazine,\
+MemberBooks,User, Books,Publisher, Record, MemberMagazine, try_session_commit
+
 load_dotenv()
 
 host = os.getenv('host')
@@ -25,7 +24,7 @@ engine = create_engine(url,echo=False)
 session = Session(bind=engine)
 # print(engine.table_names())
 tables = inspect(engine).get_table_names()
-print(len(tables))
+
 if len(tables) < 9:
     print("Incomplete Database found, Deleting the database \
         to create a new one from scratch \n\
