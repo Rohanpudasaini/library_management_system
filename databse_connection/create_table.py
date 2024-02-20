@@ -14,7 +14,7 @@ class MemberBooks(Base):
     __tablename__ = 'member_book'
     id = Column(Integer, primary_key = True)
     user_id = Column('user_id',Integer, ForeignKey('users.id'))
-    book_id = Column('book_id',BigInteger, ForeignKey('books.ISBN_number'))
+    book_id = Column('book_id',String, ForeignKey('books.ISBN_number'))
     
     def __str__(self) -> str:
         return f'{self.user_id} and {self.id}'
@@ -23,7 +23,7 @@ class MemberMagazine(Base):
     __tablename__ = 'member_magazine'
     id = Column(Integer, primary_key = True)
     user_id = Column('user_id',Integer, ForeignKey('users.id'))
-    magazine_id = Column('magazine_id',BigInteger, ForeignKey('magazines.ISSN_number'))
+    magazine_id = Column('magazine_id',String, ForeignKey('magazines.ISSN_number'))
     
     def __str__(self) -> str:
         return f'{self.user_id} and {self.id}'
@@ -45,18 +45,20 @@ class User(Base):
     
 class Books(Base):
     __tablename__='books'
-    ISBN_number = Column(BigInteger(),nullable = False, unique = True, primary_key=True, autoincrement=False)
+    ISBN_number = Column(String(15),nullable = False, unique = True, primary_key=True, autoincrement=False)
     book_title = Column(String(100), nullable=False)
     author = Column(String(20),nullable= False, default='Folklore')
     price = Column(Integer(), nullable=False)
     user_id = relationship('User', secondary='member_book', back_populates='book_id')
+    # genre_id = Column(Integer(), ForeignKey('genre.id'))
+    genre = relationship('Genre', sync_backref='genre')
     
     def __str__(self):
         return f'{self.__tablename__}'
     
 class Magazine(Base):
     __tablename__='magazines'
-    ISSN_number = Column(BigInteger(),nullable = False, unique = True, primary_key=True, autoincrement=False)
+    ISSN_number = Column(String(15),nullable = False, unique = True, primary_key=True, autoincrement=False)
     magazine_title = Column(String(100), nullable=False)
     editor = Column(String(20),nullable= False, default='Folklore')
     price = Column(Integer(), nullable=False)
@@ -69,6 +71,7 @@ class Genre(Base):
     __tablename__ = 'genre'
     id = Column(Integer(),primary_key = True)
     genre_name = Column(String(50), nullable = False)
+    book_id = Column(String(15),ForeignKey('books.ISBN_number'))
      
     def __str__(self):
         return f'{self.__tablename__}'
@@ -95,10 +98,18 @@ class Librarian(Base):
 # def init_database(engine):
 #     Base.metadata.create_all(engine)
 
-# Base.metadata.create_all(engine)
-# user1 = User(username='username1',email='email1',address='address',phone_number=[5678910111213])
+Base.metadata.create_all(engine)
+book1 = Books(ISBN_number = '1234567891011', author='Rohan',book_title='Very Good Book', price=800)
+book2 = Books(ISBN_number = '1234567891012', author='Rohan',book_title='Very Good Book2', price=900)
+book3 = Books(ISBN_number = '1234567891013', author='Rohan',book_title='Very Good Book3', price=1000)
+magazine1 = Magazine(ISSN_number = '1234567891011', editor='Rohan',magazine_title='Very Good Magazine', price=800)
+user1 = User(username='username1',email='email1',address='address',phone_number=5678910111213, book_id=[book1,book3])
+user2 = User(username='username2',email='email2',address='address',phone_number=5678910111214, book_id=[book2,book3], magazine_id=[magazine1])
+
+session.add_all([book1, book2, book3,magazine1,user1,user2])
 # session.add(user1)
-# session.commit()
+
+session.commit()
 
 
 
