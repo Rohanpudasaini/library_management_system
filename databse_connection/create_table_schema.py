@@ -1,3 +1,4 @@
+import time
 from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy import Column, String, DateTime, BigInteger, Integer, ForeignKey
 from datetime import datetime, timedelta
@@ -199,3 +200,7 @@ def try_session_commit(session):
         session.commit()
     except IntegrityError as e:
         print(e._message())
+        session.rollback()
+        print("Rolling back all the transaction and redirecting to\
+            main menu, please wait")
+        time.sleep(5)

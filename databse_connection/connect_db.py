@@ -2,8 +2,8 @@ import os
 from sqlalchemy import text, create_engine, URL, inspect
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
-from create_table_schema import create_database, Librarian, Magazine,\
-MemberBooks,User, Books,Publisher, Record, MemberMagazine, try_session_commit
+from databse_connection.create_table_schema import create_database, Librarian, Magazine,\
+MemberBooks,User, Books,Publisher, Record, MemberMagazine, try_session_commit, Genre
 
 load_dotenv()
 
