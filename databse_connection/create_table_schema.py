@@ -143,7 +143,7 @@ def create_database(engine, session, dummy_data):
 
         genre1 = Genre(genre_name='Educational')
         genre2 = Genre(genre_name='Action')
-        genre3 = Genre(genre_name='Floktale')
+        genre3 = Genre(genre_name='Folktale')
         publisher1 = Publisher(
             name="ABC Publishers",
             address="Kathmandu",
@@ -178,6 +178,9 @@ def create_database(engine, session, dummy_data):
                                 genre=magazine1.genre, issued_date=datetime.utcnow().date())
         record_to_add4 = Record(user=user2, book=book2, genre=book2.genre, issued_date=datetime.utcnow(
         ).date(), expected_return_date=(datetime.utcnow().date() + timedelta(days=30)))
+        
+        record_to_add5 = Record(user=user2, book=book3, genre=book3.genre, issued_date=datetime.utcnow(
+        ).date(), expected_return_date=(datetime.utcnow().date() + timedelta(days=30)))
         librarian1 = Librarian(
             name='Kausha Gautam',
             email='admin@lms.com',
@@ -191,6 +194,7 @@ def create_database(engine, session, dummy_data):
             record_to_add2,
             record_to_add3,
             record_to_add4,
+            record_to_add5,
             librarian1
         ])
         session.commit()

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-from databse_connection.connect_db import Librarian, Magazine, MemberBooks, User, Books, \
-    Publisher, Record, MemberMagazine, session, try_session_commit, Genre
-from sqlalchemy.exc import IntegrityError
+from databse_connection.connect_db import Librarian, Magazine,  User, Books, \
+    Publisher, Record, session, try_session_commit, Genre
+
 
 
 
@@ -124,12 +124,59 @@ class Members():
 
 class Book:
 
-    def __init__(self, ISBN_number, author, book_title, price, available_number) -> None:
+    def __init__(self, ISBN_number, author, book_title, price, available_number, publication, genre) -> None:
         book1 = Books(ISBN_number=ISBN_number, author=author, book_title=book_title,
-                      price=price, available_number=available_number)
+                      price=price, available_number=available_number,
+                      publisher = publication, genre=genre
+                      )
         session.add(book1)
         try_session_commit(session)
     
+    @staticmethod
+    def show_all_book():
+        books_list = []
+        header = ["ISBN Number","Title" ,"Author", "Price", "Available number", "Publisher", "Genre"]
+        books = session.query(Books).all()
+        for book in books:
+            book_list = [
+                book.ISBN_number,
+                book.book_title, 
+                book.author, 
+                book.price,
+                book.available_number,
+                book.publisher.name,
+                book.genre.genre_name
+                         ]
+            books_list.append(book_list)
+        return (books_list, header)
+
+class MagazineClass:
+
+    def __init__(self, ISSN_number, editor, magazine_title, price, available_number, publication, genre) -> None:
+        book1 = Magazine(ISSN_number=ISSN_number, editor=editor, magazine_title=magazine_title,
+                      price=price, available_number=available_number,
+                      publisher = publication, genre=genre
+                      )
+        session.add(book1)
+        try_session_commit(session)
+    
+    @staticmethod
+    def show_all_magazine():
+        magazines_list = []
+        header = ["ISSN Number","Title" ,"Editor", "Price", "Available number", "Publisher", "Genre"]
+        magazines = session.query(Magazine).all()
+        for magazine in magazines:
+            magazine_list = [
+                magazine.ISSN_number,
+                magazine.magazine_title, 
+                magazine.editor, 
+                magazine.price,
+                magazine.available_number,
+                magazine.publisher.name,
+                magazine.genre.genre_name
+                         ]
+            magazines_list.append(magazine_list)
+        return (magazines_list, header)
 
 class Library_Admin:
     
@@ -173,6 +220,10 @@ class Publications:
             publisher_list = [publisher.id,publisher.name, publisher.address, publisher.phone_number]
             publishers_list.append(publisher_list)
         return (publishers_list, header_list)
+
+    @staticmethod
+    def get_publisher_object(publisher_name):
+        return session.query(Publisher).where(Publisher.name== publisher_name).one_or_none()
     
 class GenreClass():
     def __init__(self, name) -> None:
@@ -189,3 +240,8 @@ class GenreClass():
             genre_list = [genre.id, genre.genre_name]
             genre_lists.append(genre_list)
         return (genre_lists,header_list)
+    
+    @staticmethod
+    def get_genre_object(genre_name):
+        return session.query(Genre).where(Genre.genre_name== genre_name).one_or_none()
+    
