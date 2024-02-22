@@ -30,10 +30,10 @@ if len(tables) < 9:
     error_assci()
     print("Incomplete Database found, Deleting the database to create a new one from scratch") 
     print("Do you want to continue??(Y/N)")
-    user_in = input("\n\t:").lower()
+    user_in = input("\n\t:").strip().lower()
     if user_in == 'n': exit()
     dummy_data = False
-    dummy = input("Do you want a dummy data on databse?(y/n)").lower()
+    dummy = input("Do you want a dummy data on databse?(y/n)").strip().lower()
     if dummy == 'y': dummy_data = True
     if tables:
         table_string = ", ".join(tables)

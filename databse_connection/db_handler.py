@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from cli_components import try_convert_to_int
 from databse_connection.connect_db import Librarian, Magazine,  User, Books, \
     Publisher, Record, session, try_session_commit, Genre, MemberBooks, MemberMagazine
 
@@ -65,28 +66,29 @@ class Members():
             User.username == username).one()
         got_record = session.query(Record).where(
             Record.member_id == user_object.id,
-            Record.book_id == ISBN_number
+            Record.book_id == ISBN_number,
+            Record.returned == False
         ).all()
         
         if got_record:
             # user_object
             books_record = session.query(Record).filter(
                 Record.member_id ==user_object.id,
-                Record.book_id == ISBN_number
+                Record.book_id == ISBN_number,
+                Record.returned == False
                 ).one()
             if books_record.expected_return_date.date() < datetime.utcnow().date():
                 
                 extra_days = (books_record.expected_return_date - datetime.utcnow().date()).days
                 if extra_days > 3:
                     fine = extra_days * 3
-                    user_object.fine = fine
+                    user_object.fine += fine
                     # try_session_commit(session)
-                
             book_to_return.available_number += 1
-            session.query(Record).filter(
-                Record.member_id ==user_object.id,
-                Record.book_id == ISBN_number
-                ).delete()
+            books_record.returned = True   
+            books_record.returned_date = datetime.utcnow().date()
+            
+            
             session.query(MemberBooks).filter(
                 MemberBooks.book_id == ISBN_number,
                 MemberBooks.user_id == user_object.id
@@ -105,13 +107,15 @@ class Members():
             User.username == username).one()
         got_record = session.query(Record).where(
             Record.member_id == user_object.id,
-            Record.magazine_id == ISSN_number
+            Record.magazine_id == ISSN_number,
+            Record.returned == False
         ).all()
         if got_record:
         
             magazine_record = session.query(Record).filter(
                 Record.member_id ==user_object.id,
-                Record.magazine_id == ISSN_number
+                Record.magazine_id == ISSN_number,
+                Record.returned == False
                 ).one()
             if magazine_record.expected_return_date.date() < datetime.utcnow().date():
                 
@@ -121,10 +125,9 @@ class Members():
                     user_object.fine += fine
                     
             magazine_to_return.available_number += 1
-            session.query(Record).filter(
-                Record.member_id == user_object.id, 
-                Record.magazine_id == ISSN_number
-                ).delete()
+            magazine_record.returned = True
+            magazine_record.returned_date = datetime.utcnow().date()
+            
             session.query(MemberMagazine).filter(
                 MemberMagazine.magazine_id == ISSN_number,
                 MemberMagazine.user_id == user_object.id
@@ -167,7 +170,7 @@ class Members():
         while fine_remaning !=0:
             if fine_remaning >0:
                 print(f"You have {fine_remaning} fee remaning".center(columns) )
-                given_payment = input("Enter the fine ammount: ")
+                given_payment = try_convert_to_int("Enter the fine ammount: ")
                 fine_remaning = fine_remaning - given_payment
             elif fine_remaning < 0:
                 print(f"You have {fine_remaning * -1} fee overpaid".center(columns) )
@@ -216,6 +219,26 @@ class Book:
                          ]
             books_list.append(book_list)
         return (books_list, header)
+    
+    @staticmethod
+    def show_users_all_book(id_given):
+        books_list = []
+        header = ["ISBN Number","Title" ,"Author", "Price", 
+                  "Available number", "Publisher", "Genre"
+                  ]
+        books = session.query(Books).where(Books.user_id.contains(id_given)).all()
+        for book in books:
+            book_list = [
+                book.ISBN_number,
+                book.book_title, 
+                book.author, 
+                book.price,
+                book.available_number,
+                book.publisher.name,
+                book.genre.genre_name
+                         ]
+            books_list.append(book_list)
+        return (books_list, header)
 
 class MagazineClass:
 
@@ -241,6 +264,25 @@ class MagazineClass:
         header = ["ISSN Number","Title" ,"Editor", "Price", 
                   "Available number", "Publisher", "Genre"]
         magazines = session.query(Magazine).all()
+        for magazine in magazines:
+            magazine_list = [
+                magazine.ISSN_number,
+                magazine.magazine_title, 
+                magazine.editor, 
+                magazine.price,
+                magazine.available_number,
+                magazine.publisher.name,
+                magazine.genre.genre_name
+                         ]
+            magazines_list.append(magazine_list)
+        return (magazines_list, header)
+    
+    @staticmethod
+    def show_users_all_magazine(user_id):
+        magazines_list = []
+        header = ["ISSN Number","Title" ,"Editor", "Price", 
+                  "Available number", "Publisher", "Genre"]
+        magazines = session.query(Magazine).where(Magazine.user_id.contains(user_id)).all()
         for magazine in magazines:
             magazine_list = [
                 magazine.ISSN_number,

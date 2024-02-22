@@ -8,14 +8,30 @@ columns = shutil.get_terminal_size().columns
 def try_convert_to_int(message):
     while True:
         try:
-            output = int(input(f"{message}"))
+            output = int(input(f"{message}").strip())
             break
         except ValueError:
-            print_center("Can't converted the entered input to number please try again.")
+            print_center(
+                "Can't converted the entered input to number please try again.")
     return output
+
 
 def print_center(message):
     print(message.center(columns))
+
+
+def validate_length(name, without, length):
+    while True:
+        returning_name = input_strip(
+            f"\nEnter the {name}  without {without}: ")
+        if len(returning_name) == length:
+            return returning_name
+        print(f"Invalid {name}, please check the length is {length}")
+
+
+def input_strip(message):
+    return input(message).strip()
+
 
 def assci_art():
     # Art by Donovan Bake
@@ -28,7 +44,8 @@ def assci_art():
     print_center("  //__...--~~~~~~-._  |  _.-~~~~~~--...__\\                ")
     print_center(" //__.....----~~~~._\ | /_.~~~~----.....__\\               ")
     print_center("====================\\|//====================              ")
-    print_center("                    `---`                                  \n")
+    print_center(
+        "                    `---`                                  \n")
 
     print_center("   ____                __    _ __                          ")
     print_center("  / __ \__  _______   / /   (_) /_  _________ ________  __ ")
@@ -40,14 +57,15 @@ def assci_art():
 
 # assci_art()
 
+
 def main_menu_choice():
-    
+
     print_center("Welcome to our Library")
     print_center("Please select what you want to do.")
     print("\n")
     print_center("1: Librarian Login")
     print_center("2: Exit")
-    return input("\nEnter your choice: ")
+    return input_strip("\nEnter your choice: ")
 
 
 def librarian_view_choice(librarian_name):
@@ -61,7 +79,8 @@ def librarian_view_choice(librarian_name):
     print_center("4. Genre Options")
     print_center("5. Publication Options")
     print_center("6. Back")
-    return input("\nEnter your choice: ")
+    return input_strip("\nEnter your choice: ")
+
 
 def member_view_choice(username):
     system("clear")
@@ -73,100 +92,113 @@ def member_view_choice(username):
     print_center(" 4. Return Magazine")
     print_center(" 5. Show all issued books and magazine")
     print_center(" 6. Back")
-    return input("\nEnter your choice: ")
+    return input_strip("\nEnter your choice: ")
+
 
 def book_add_choice():
     print_center("If you don't find your required publisher or genre, please add it\
  from main menu or ask admin\n\n\n")
-    
-    ISBN_number = input("\nEnter the ISBN Number of book: ")
-    book_title = input("\nEnter Book Title: ")
+
+    ISBN_number = validate_length('ISBN number', "- or spaces", 13)
+    book_title = input_strip("\nEnter Book Title: ")
     price = try_convert_to_int("Enter the price of book: ")
-    author = input("\nEnter the Author name: ")
-    available_number = try_convert_to_int("Enter the number of books available: ")
-    publisher = input("\nEnter the publisher's Name from table above: ")
-    genre = input("\nEnter The genre name from above table: ")
-    return (ISBN_number, book_title,price,author,available_number,publisher, genre)
-    
-    
+    author = input_strip("\nEnter the Author name: ")
+    available_number = try_convert_to_int(
+        "Enter the number of books available: ")
+    publisher = input_strip("\nEnter the publisher's Name from table above: ")
+    genre = input_strip("\nEnter The genre name from above table: ")
+    return (ISBN_number, book_title, price, author, available_number, publisher, genre)
+
+
 def genre_view_choice():
-    add_genre = input("\n1: Add Genre \n2: Back\n\n")
+    add_genre = input_strip("\n1: Add Genre \n2: Back\n\n")
     if add_genre == '1':
-        name = input("\nEnter the name of the Genre: ")
+        name = input_strip("\nEnter the name of the Genre: ")
         return name
     elif add_genre == '2':
         return None
+
 
 def magazine_add_choice():
     print_center("If you don't find your required publisher or genre, please add it\
  from main menu or ask admin")
     print('\n\n')
 
-    ISSN_number = input("\nEnter the ISSN Number of Magazine: ")
-    magazine_title = input("\nEnter Magazine Title: ")
+    # ISSN_number = input("\nEnter the ISSN Number of Magazine: ")
+    ISSN_number = validate_length('ISSN number', "- or spaces", 8)
+    magazine_title = input_strip("\nEnter Magazine Title: ")
     price = try_convert_to_int("Enter the price of Magazine: ")
-    editor = input("\nEnter the Author name: ")
-    available_number = try_convert_to_int("Enter the number of magazine available: ")
-    
-    publisher = input("\nEnter the publisher's Name from table above: ")
-    genre = input("\nEnter The genre name from above table: ")
-    return (ISSN_number, magazine_title,price,editor,available_number,publisher, genre)
+    editor = input_strip("\nEnter the Author name: ")
+    available_number = try_convert_to_int(
+        "Enter the number of magazine available: ")
+
+    publisher = input_strip("\nEnter the publisher's Name from table above: ")
+    genre = input_strip("\nEnter The genre name from above table: ")
+    return (ISSN_number, magazine_title, price, editor, available_number, publisher, genre)
+
 
 def publication_view_choice():
-    add_publication = input("\n1: Add Publication \n2: Back\n\n")
+    add_publication = input_strip("\n1: Add Publication \n2: Back\n\n")
     if add_publication == '1':
-        name = input("\nEnter the name of the publication: ")
-        address = input("\nEnter the publication's address: ")
-        phone_number = input("\nEnter the publication's number: ")
-        return name,address,phone_number
+        name = input_strip("\nEnter the name of the publication: ")
+        address = input_strip("\nEnter the publication's address: ")
+        # phone_number = input("\nEnter the publication's number: ")
+        phone_number = validate_length("Phone Number", "country code", 10)
+        return name, address, phone_number
     elif add_publication == '2':
         return None
 
+
 def add_member_menu():
     system("clear")
-    username = input("\nEnter the username of the member: ")
-    email = input("\nEnter the member's email: ")
-    address = input("\nEnter the user's address: ")
-    phone_number = input("\nEnter the user's number: ")
-    return username,email,address,phone_number
+    username = input_strip("\nEnter the username of the member: ")
+    email = input_strip("\nEnter the member's email: ")
+    address = input_strip("\nEnter the user's address: ")
+    phone_number = validate_length("Phone number", "country code", 10)
+    return username, email, address, phone_number
 
-def print_table(data_row,header):
+
+def print_table(data_row, header):
     return tabulate(tabular_data=data_row, headers=header, tablefmt='fancy_grid')
 
-def add_book_menu():
-    username = input("\nEnter the username of the member: ")
-    email = input("\nEnter the member's email: ")
-    address = input("\nEnter the user's address: ")
-    phone_number = input("\nEnter the user's number: ")
-    return username,email,address,phone_number
 
 def issue_book_menu():
-    ISBN_to_issue = input("\nEnter the ISBN number of the book you want: ")
-    days= input("\nDo you want to take this book for more than 15 days (y/n): ").lower()
+    # ISBN_to_issue = input("\nEnter the ISBN number of the book you want: ")
+    ISBN_to_issue = validate_length(
+        "ISBN number to issue book", "'-' or spaces", 13)
+    days = input_strip(
+        "\nDo you want to take this book for more than 15 days (y/n): ").lower()
     days_to_add = 15
-    if days=='y':
+    if days == 'y':
         days_to_add = try_convert_to_int("Enter the days you want to borrow the book for \
             (eg 1 ,2)")
-    return ISBN_to_issue, days_to_add    
+    return ISBN_to_issue, days_to_add
+
 
 def return_book_menu():
-    return input("\nEnter the ISBN number of the book you want: ")
+    return validate_length("\nEnter the ISBN number of the book you want to return", "'-' or spaces", 13)
+
 
 def issue_magazine_menu():
-    ISSN_to_issue = input("\nEnter the ISSN number of the magazine you want to return: ")
-    days= input("\nDo you want to take this book for more than 15 days (y/n): ").lower()
+    ISSN_to_issue = input_strip(
+        "\nEnter the ISSN number of the magazine you want to return: ")
+    days = input_strip(
+        "\nDo you want to take this book for more than 15 days (y/n): ").lower()
     days_to_add = 15
-    if days=='y':
+    if days == 'y':
         days_to_add = try_convert_to_int("Enter the days you want to borrow the book for \
             (eg 1 ,2)")
-    return ISSN_to_issue, days_to_add  
-    
+    return ISSN_to_issue, days_to_add
+
+
 def return_magazine_menu():
-    return input("\nEnter the ISSN number of the magazine you want to return: ")
+    return validate_length("ISSN number of the magazine you want to return", "'-' or spaces", 8)
+
 
 def show_fine_menu(username):
     print_center(f"Hello {username}, you have some fine remaning!!")
     print_center("please contact account department")
+
 
 def error_assci():
     system("clear")
@@ -191,5 +223,3 @@ def error_assci():
     print_center("  /\/\.    .  .    ./\/\      [..]   [..]   ")
     print_center(" / / / .../|  |\... \ \ \    _[__]   [__]_  ")
     print_center("/ / /       \/       \ \ \  [____>   <____] ")
-
-

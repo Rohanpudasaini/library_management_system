@@ -1,6 +1,6 @@
 import time
 from sqlalchemy.orm import DeclarativeBase, relationship
-from sqlalchemy import Column, String, DateTime, BigInteger, Integer, ForeignKey
+from sqlalchemy import Column, String, DateTime, BigInteger, Integer, ForeignKey, Boolean
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 
@@ -137,6 +137,7 @@ class Record(Base):
     returned_date = Column(DateTime())
     expected_return_date = Column(DateTime(), default=(
         datetime.utcnow().date() + timedelta(days=15)))
+    returned = Column(Boolean, default=False)
 
 
 def create_database(engine, session, dummy_data):
