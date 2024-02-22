@@ -69,8 +69,10 @@ class Members():
         ).all()
         if got_record:
             book_to_return.available_number += 1
-            session.query(Record).filter(Record.member_id ==
-                                         user_object.id, Record.book_id == ISBN_number).delete()
+            session.query(Record).filter(
+                Record.member_id ==user_object.id,
+                Record.book_id == ISBN_number
+                ).delete()
         else:
             print(
                 f"The user {username} haven't issued book {book_to_return.book_title}")
@@ -89,7 +91,9 @@ class Members():
         if got_record:
             magazine_to_return.available_number += 1
             session.query(Record).filter(
-                Record.member_id == user_object.id, Record.magazine_id == ISSN_number).delete()
+                Record.member_id == user_object.id, 
+                Record.magazine_id == ISSN_number
+                ).delete()
         else:
             print(
                 f"The user {username} haven't issued magazine {magazine_to_return.magazine_title}")
@@ -114,28 +118,40 @@ class Members():
         for member in members:
             member_book_list = [book.book_title for book in member.book_id]
             member_magazine_list = [magazine.magazine_title for magazine in member.magazine_id]
-            new_list = [member.username, member.expiry_date.date(), member_book_list, member_magazine_list]
+            new_list = [
+                member.username, 
+                member.expiry_date.date(), 
+                member_book_list, 
+                member_magazine_list
+                ]
             all_member_list.append(new_list)
         return (all_member_list, header)
             
         
-        
-
 
 class Book:
 
-    def __init__(self, ISBN_number, author, book_title, price, available_number, publication, genre) -> None:
-        book1 = Books(ISBN_number=ISBN_number, author=author, book_title=book_title,
-                      price=price, available_number=available_number,
-                      publisher = publication, genre=genre
+    def __init__(self, ISBN_number, author, book_title, 
+                 price, available_number, publication, genre):
+        book1 = Books(
+            ISBN_number=ISBN_number, 
+            author=author, 
+            book_title=book_title,
+            price=price, 
+            available_number=available_number,
+            publisher = publication, 
+            genre=genre
                       )
+        
         session.add(book1)
         try_session_commit(session)
     
     @staticmethod
     def show_all_book():
         books_list = []
-        header = ["ISBN Number","Title" ,"Author", "Price", "Available number", "Publisher", "Genre"]
+        header = ["ISBN Number","Title" ,"Author", "Price", 
+                  "Available number", "Publisher", "Genre"
+                  ]
         books = session.query(Books).all()
         for book in books:
             book_list = [
@@ -152,18 +168,27 @@ class Book:
 
 class MagazineClass:
 
-    def __init__(self, ISSN_number, editor, magazine_title, price, available_number, publication, genre) -> None:
-        book1 = Magazine(ISSN_number=ISSN_number, editor=editor, magazine_title=magazine_title,
-                      price=price, available_number=available_number,
-                      publisher = publication, genre=genre
+    def __init__(self, ISSN_number, editor, magazine_title, 
+                 price, available_number, publication, genre):
+        
+        book1 = Magazine(
+            ISSN_number=ISSN_number, 
+            editor=editor, 
+            magazine_title=magazine_title,
+            price=price, 
+            available_number=available_number,
+            publisher = publication, 
+            genre=genre
                       )
+        
         session.add(book1)
         try_session_commit(session)
     
     @staticmethod
     def show_all_magazine():
         magazines_list = []
-        header = ["ISSN Number","Title" ,"Editor", "Price", "Available number", "Publisher", "Genre"]
+        header = ["ISSN Number","Title" ,"Editor", "Price", 
+                  "Available number", "Publisher", "Genre"]
         magazines = session.query(Magazine).all()
         for magazine in magazines:
             magazine_list = [
@@ -180,7 +205,7 @@ class MagazineClass:
 
 class Library_Admin:
     
-    def __init__(self, name, email, password, address, phone_number) -> None:
+    def __init__(self, name, email, password, address, phone_number):
         librarian1 = Librarian(
             name=name,
             email=email,
@@ -217,7 +242,13 @@ class Publications:
         header_list = ["ID","Name", "Address", "Phone Number"]
         publishers = session.query(Publisher).all()
         for publisher in publishers:
-            publisher_list = [publisher.id,publisher.name, publisher.address, publisher.phone_number]
+            publisher_list = [
+                publisher.id,
+                publisher.name, 
+                publisher.address, 
+                publisher.phone_number
+                ]
+            
             publishers_list.append(publisher_list)
         return (publishers_list, header_list)
 

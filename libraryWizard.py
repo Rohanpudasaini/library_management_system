@@ -57,14 +57,21 @@ if user_input == '1':
                             data, header = Book.show_all_book()
                             print(print_table(data,header))
                             ISBN_number_to_issue, days_to_issue = issue_book_menu()
-                            Members.user_add_book(select_member, ISBN_number_to_issue, days_to_issue)
+                            Members.user_add_book(
+                                select_member, 
+                                ISBN_number_to_issue, 
+                                days_to_issue)
                         
                         elif user_member_choice == '2': 
                             system('clear')
                             data, header = Book.show_all_book()
                             print(print_table(data,header))
                             ISSN_number_to_issue, days_to_issue = issue_magazine_menu()
-                            Members.user_add_magazine(select_member,ISSN_number_to_issue,days_to_issue) 
+                            Members.user_add_magazine(
+                                select_member,
+                                ISSN_number_to_issue,
+                                days_to_issue
+                                ) 
                             
                         elif user_member_choice == '3': 
                             system('clear')
@@ -73,7 +80,10 @@ if user_input == '1':
                             data, header = Book.show_all_book()
                             print(print_table(data,header))
                             ISBN_number_to_return = return_book_menu()
-                            Members.user_return_book(select_member,ISBN_number_to_return) 
+                            Members.user_return_book(
+                                select_member,
+                                ISBN_number_to_return
+                                ) 
                         
                         elif user_member_choice == '4': 
                             system('clear')
@@ -82,7 +92,10 @@ if user_input == '1':
                             data, header = MagazineClass.show_all_magazine()
                             print(print_table(data,header))
                             ISSN_number_to_return = return_magazine_menu()
-                            Members.user_return_book(select_member,ISSN_number_to_return) 
+                            Members.user_return_book(
+                                select_member,
+                                ISSN_number_to_return
+                                ) 
                         
                         elif user_member_choice == '5':
                             system('clear')

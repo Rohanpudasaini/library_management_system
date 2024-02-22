@@ -156,31 +156,92 @@ def create_database(engine, session, dummy_data):
             phone_number=9810204527
         )
 
-        book1 = Books(ISBN_number='1234567891011', author='Rohan', book_title='Very Good Book',
-                      price=800, available_number=50, publisher=publisher1, genre=genre1)
-        book2 = Books(ISBN_number='1234567891012', author='Rohan', book_title='Very Good Book2',
-                      price=900, available_number=20, publisher=publisher1, genre=genre2)
-        book3 = Books(ISBN_number='1234567891013', author='Rohan', book_title='Very Good Book3',
-                      price=1000, available_number=10, publisher=publisher1, genre=genre3)
-        magazine1 = Magazine(ISSN_number='1234567891011', editor='Rohan', magazine_title='Very Good Magazine',
-                             price=800, available_number=10, publisher=publisher2, genre=genre1)
-        user1 = User(username='username1', email='email1', address='address',
-                     phone_number=5678910111213, book_id=[book1, book3])
-        user2 = User(username='username2', email='email2', address='address',
-                     phone_number=5678910111214, book_id=[book2, book3], magazine_id=[magazine1])
+        book1 = Books(ISBN_number='1234567891011', 
+                      author='Rohan', 
+                      book_title='Very Good Book',
+                      price=800, 
+                      available_number=50, 
+                      publisher=publisher1, 
+                      genre=genre1
+                      )
+        
+        book2 = Books(ISBN_number='1234567891012', 
+                      author='Rohan', 
+                      book_title='Very Good Book2',
+                      price=900, 
+                      available_number=20, 
+                      publisher=publisher1, 
+                      genre=genre2
+                      )
+        
+        book3 = Books(ISBN_number='1234567891013', 
+                      author='Rohan', 
+                      book_title='Very Good Book3',
+                      price=1000, 
+                      available_number=10, 
+                      publisher=publisher1, 
+                      genre=genre3
+                      )
+        
+        magazine1 = Magazine(ISSN_number='1234567891011', 
+                             editor='Rohan', 
+                             magazine_title='Very Good Magazine',
+                             price=800, available_number=10, 
+                             publisher=publisher2, 
+                             genre=genre1
+                             )
+        
+        user1 = User(username='username1', 
+                     email='email1', 
+                     address='address',
+                     phone_number=5678910111213, 
+                     book_id=[book1, book3]
+                     )
+        
+        user2 = User(username='username2', 
+                     email='email2', 
+                     address='address',
+                     phone_number=5678910111214, 
+                     book_id=[book2, book3], 
+                     magazine_id=[magazine1]
+                     )
+        
         session.add_all([genre1, genre2, genre3, book1, book2,
                         book3, magazine1, user1, user2])
-        record_to_add = Record(
-            user=user1, book=book1, genre=book1.genre, issued_date=datetime.utcnow().date())
-        record_to_add2 = Record(
-            user=user1, book=book2, genre=book2.genre, issued_date=datetime.utcnow().date())
-        record_to_add3 = Record(user=user1, magazine=magazine1,
-                                genre=magazine1.genre, issued_date=datetime.utcnow().date())
-        record_to_add4 = Record(user=user2, book=book2, genre=book2.genre, issued_date=datetime.utcnow(
-        ).date(), expected_return_date=(datetime.utcnow().date() + timedelta(days=30)))
         
-        record_to_add5 = Record(user=user2, book=book3, genre=book3.genre, issued_date=datetime.utcnow(
-        ).date(), expected_return_date=(datetime.utcnow().date() + timedelta(days=30)))
+        record_to_add = Record(user=user1, 
+                               book=book1, 
+                               genre=book1.genre, 
+                               issued_date=datetime.utcnow().date()
+                               )
+        
+        record_to_add2 = Record(user=user1, 
+                                book=book2, 
+                                genre=book2.genre, 
+                                issued_date=datetime.utcnow().date()
+                                )
+        
+        record_to_add3 = Record(user=user1, 
+                                magazine=magazine1,
+                                genre=magazine1.genre, 
+                                issued_date=datetime.utcnow().date()
+                                )
+        
+        record_to_add4 = Record(
+            user=user2, 
+            book=book2, 
+            genre=book2.genre, 
+            issued_date=datetime.utcnow().date(), 
+            expected_return_date=(datetime.utcnow().date() + timedelta(days=30)))
+        
+        record_to_add5 = Record(
+            user=user2, 
+            book=book3, 
+            genre=book3.genre, 
+            issued_date=datetime.utcnow().date(), 
+            expected_return_date=(datetime.utcnow().date() + timedelta(days=30))
+                                )
+        
         librarian1 = Librarian(
             name='Kausha Gautam',
             email='admin@lms.com',
