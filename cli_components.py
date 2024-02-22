@@ -54,7 +54,7 @@ def librarian_view_choice(librarian_name):
     system("clear")
     print_center(f"Login Sucessful, welcome {librarian_name}\n\n")
     print_center("Select option")
-    print_center("\n\t 0. Show All Members")
+    print_center("0. Show All Members")
     print_center("1. Members Options")
     print_center("2. Book Options")
     print_center("3. Magazine Options")
@@ -63,9 +63,9 @@ def librarian_view_choice(librarian_name):
     print_center("6. Back")
     return input("\nEnter your choice: ")
 
-def member_view_choice(user_object):
+def member_view_choice(username):
     system("clear")
-    print_center(f"Login Sucessful, welcome {user_object.username}\n\n")
+    print_center(f"Login Sucessful, welcome {username}\n\n")
     print_center("Select option")
     print_center(" 1. Issue Book")
     print_center(" 2. Issue Magazine")
@@ -164,7 +164,32 @@ def issue_magazine_menu():
 def return_magazine_menu():
     return input("\nEnter the ISSN number of the magazine you want to return: ")
 
+def show_fine_menu(username):
+    print_center(f"Hello {username}, you have some fine remaning!!")
+    print_center("please contact account department")
 
-
+def error_assci():
+    system("clear")
+    print_center("    Database Error              |     |     ")
+    print_center("                                \\_V_//     ")
+    print_center("                                \/=|=\/     ")
+    print_center("                                 [=v=]      ")
+    print_center("                               __\___/_____ ")
+    print_center("                              /..[  _____  ]")
+    print_center("                             /_  [ [  M /] ]")
+    print_center("                            /../.[ [ M /@] ]")
+    print_center("                           <-->[_[ [M /@/] ]")
+    print_center("                          /../ [.[ [ /@/ ] ]")
+    print_center("     _________________]\ /__/  [_[ [/@/ C] ]")
+    print_center("    <_________________>>0---]  [=\ \@/ C / /")
+    print_center("       ___      ___   ]/000o   /__\ \ C / / ")
+    print_center("          \    /              /....\ \_/ /  ")
+    print_center("       ....\||/....           [___/=\___/   ")
+    print_center("      .    .  .    .          [...] [...]   ")
+    print_center("     .      ..      .         [___/ \___]   ")
+    print_center("     .    0 .. 0    .         <---> <--->   ")
+    print_center("  /\/\.    .  .    ./\/\      [..]   [..]   ")
+    print_center(" / / / .../|  |\... \ \ \    _[__]   [__]_  ")
+    print_center("/ / /       \/       \ \ \  [____>   <____] ")
 
 

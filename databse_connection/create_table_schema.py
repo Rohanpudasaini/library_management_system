@@ -42,12 +42,14 @@ class User(Base):
         DateTime(), default=datetime.utcnow().date() + timedelta(days=60))
     address = Column(String(200), nullable=False)
     phone_number = Column(BigInteger())
+    fine = Column(Integer,default=0)
     book_id = relationship(
         'Books', secondary='member_book', back_populates='user_id')
     magazine_id = relationship(
         'Magazine', secondary='member_magazine', back_populates='user_id')
     record = relationship('Record', backref='user')
 
+    
     def __str__(self):
         return f'{self.__tablename__}'
 
@@ -244,8 +246,16 @@ def create_database(engine, session, dummy_data):
         
         librarian1 = Librarian(
             name='Kausha Gautam',
-            email='admin@lms.com',
+            email='admin1@lms.com',
             password='supersecuredangerpassword',
+            address='Kathmandu',
+            phone_number=9810234567,
+        )
+        
+        librarian2 = Librarian(
+            name='Sakar Poudel',
+            email='admin@lms.com',
+            password='admin',
             address='Kathmandu',
             phone_number=9810234567,
         )
@@ -256,7 +266,8 @@ def create_database(engine, session, dummy_data):
             record_to_add3,
             record_to_add4,
             record_to_add5,
-            librarian1
+            librarian1,
+            librarian2
         ])
         session.commit()
 

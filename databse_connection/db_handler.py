@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from databse_connection.connect_db import Librarian, Magazine,  User, Books, \
-    Publisher, Record, session, try_session_commit, Genre
+    Publisher, Record, session, try_session_commit, Genre, MemberBooks, MemberMagazine
 
 
 
@@ -67,12 +67,31 @@ class Members():
             Record.member_id == user_object.id,
             Record.book_id == ISBN_number
         ).all()
+        
         if got_record:
+            # user_object
+            books_record = session.query(Record).filter(
+                Record.member_id ==user_object.id,
+                Record.book_id == ISBN_number
+                ).one()
+            if books_record.expected_return_date.date() < datetime.utcnow().date():
+                
+                extra_days = (books_record.expected_return_date - datetime.utcnow().date()).days
+                if extra_days > 3:
+                    fine = extra_days * 3
+                    user_object.fine = fine
+                    # try_session_commit(session)
+                
             book_to_return.available_number += 1
             session.query(Record).filter(
                 Record.member_id ==user_object.id,
                 Record.book_id == ISBN_number
                 ).delete()
+            session.query(MemberBooks).filter(
+                MemberBooks.book_id == ISBN_number,
+                MemberBooks.user_id == user_object.id
+            ).delete()
+            
         else:
             print(
                 f"The user {username} haven't issued book {book_to_return.book_title}")
@@ -81,7 +100,7 @@ class Members():
     @staticmethod
     def user_return_magazine(username, ISSN_number):
         magazine_to_return = session.query(Magazine).where(
-            Magazine.ISBN_number == ISSN_number).one()
+            Magazine.ISSN_number == ISSN_number).one()
         user_object = session.query(User).where(
             User.username == username).one()
         got_record = session.query(Record).where(
@@ -89,11 +108,27 @@ class Members():
             Record.magazine_id == ISSN_number
         ).all()
         if got_record:
+        
+            magazine_record = session.query(Record).filter(
+                Record.member_id ==user_object.id,
+                Record.magazine_id == ISSN_number
+                ).one()
+            if magazine_record.expected_return_date.date() < datetime.utcnow().date():
+                
+                extra_days = (magazine_record.expected_return_date - datetime.utcnow().date()).days
+                if extra_days > 3:
+                    fine = extra_days * 3
+                    user_object.fine += fine
+                    
             magazine_to_return.available_number += 1
             session.query(Record).filter(
                 Record.member_id == user_object.id, 
                 Record.magazine_id == ISSN_number
                 ).delete()
+            session.query(MemberMagazine).filter(
+                MemberMagazine.magazine_id == ISSN_number,
+                MemberMagazine.user_id == user_object.id
+            ).delete()
         else:
             print(
                 f"The user {username} haven't issued magazine {magazine_to_return.magazine_title}")
@@ -126,6 +161,22 @@ class Members():
                 ]
             all_member_list.append(new_list)
         return (all_member_list, header)
+    
+    @staticmethod
+    def pay_fine(fine_remaning, columns):
+        while fine_remaning !=0:
+            if fine_remaning >0:
+                print(f"You have {fine_remaning} fee remaning".center(columns) )
+                given_payment = input("Enter the fine ammount: ")
+                fine_remaning = fine_remaning - given_payment
+            elif fine_remaning < 0:
+                print(f"You have {fine_remaning * -1} fee overpaid".center(columns) )
+                print("\n Returned the money")
+                fine_remaning = 0
+            else:
+                input("All fine paid, Thanks you".center(columns))
+                break
+                
             
         
 

@@ -6,7 +6,7 @@ from databse_connection.db_handler import MagazineClass, Members, Book, Library_
 from cli_components import assci_art, issue_book_menu, issue_magazine_menu, librarian_view_choice,\
     main_menu_choice, member_view_choice, book_add_choice, \
     genre_view_choice, magazine_add_choice, add_member_menu, print_table, \
-    publication_view_choice, return_book_menu, return_magazine_menu, columns
+    publication_view_choice, return_book_menu, return_magazine_menu, columns, show_fine_menu
 from time import sleep
 logged_in = False
 # while True:
@@ -50,8 +50,10 @@ if user_input == '1':
                         continue
 
                     else:
-
-                        user_member_choice = member_view_choice(user_object)
+                        if user_object.fine > 0:
+                            show_fine_menu(user_object.username)
+                            Members.pay_fine(user_object.fine, columns)
+                        user_member_choice = member_view_choice(user_object.username)
                         if user_member_choice == '1':
                             system("clear")
                             data, header = Book.show_all_book()
@@ -64,7 +66,7 @@ if user_input == '1':
                         
                         elif user_member_choice == '2': 
                             system('clear')
-                            data, header = Book.show_all_book()
+                            data, header = MagazineClass.show_all_magazine()
                             print(print_table(data,header))
                             ISSN_number_to_issue, days_to_issue = issue_magazine_menu()
                             Members.user_add_magazine(
@@ -92,7 +94,7 @@ if user_input == '1':
                             data, header = MagazineClass.show_all_magazine()
                             print(print_table(data,header))
                             ISSN_number_to_return = return_magazine_menu()
-                            Members.user_return_book(
+                            Members.user_return_magazine(
                                 select_member,
                                 ISSN_number_to_return
                                 ) 
