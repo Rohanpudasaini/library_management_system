@@ -1,19 +1,18 @@
 # from getpass import getpass
 from pwinput import pwinput
 from os import system
-from databse_connection.db_handler import MagazineClass, Members, Book, Library_Admin, Publications, GenreClass
-from cli_components import issue_book_menu, issue_magazine_menu, librarian_view_choice, member_view_choice, book_add_choice, \
-    genre_view_choice, magazine_add_choice, add_member_menu, print_table, publication_view_choice, return_book_menu, return_magazine_menu
+from databse_connection.db_handler import MagazineClass, Members, Book, Library_Admin, \
+    Publications, GenreClass
+from cli_components import assci_art, issue_book_menu, issue_magazine_menu, librarian_view_choice,\
+    main_menu_choice, member_view_choice, book_add_choice, \
+    genre_view_choice, magazine_add_choice, add_member_menu, print_table, \
+    publication_view_choice, return_book_menu, return_magazine_menu, columns
 from time import sleep
 logged_in = False
 # while True:
 
-system('clear')
-print("Welcome to our Library")
-print("Please select what you want to do.")
-print("\n1: Librarian Login\
-    \n2: Exit")
-user_input = input("\nEnter your choice: ")
+assci_art()
+user_input = main_menu_choice()
 if user_input == '1':
     while True:
         if not logged_in:
@@ -31,8 +30,9 @@ if user_input == '1':
                 print(print_table(data_row=data,header=header))
                 input("\n\n Press any key to go back to menu")
             if user_input == '1':
-                add_member = input("\n1. Add New Member \n2. Select Old Member\
-                     \n\nEnter your choice: ")
+                add_member = input(f"1. Add New Member".center(columns)+ \
+                    "2. Select Old Member".center(columns)+\
+                    "\n\nEnter your choice: ")
 
                 if add_member == '1':
                     username, email, address, phone_number = add_member_menu()
