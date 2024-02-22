@@ -69,7 +69,7 @@ if user_input == '1':
                                         data, header = Book.show_all_book()
                                         print(print_table(data, header))
                                         ISBN_number_to_issue, days_to_issue = issue_book_menu()
-                                        Members.user_add_book(
+                                        Members.member_add_book(
                                             select_member,
                                             ISBN_number_to_issue,
                                             days_to_issue)
@@ -79,7 +79,7 @@ if user_input == '1':
                                         data, header = MagazineClass.show_all_magazine()
                                         print(print_table(data, header))
                                         ISSN_number_to_issue, days_to_issue = issue_magazine_menu()
-                                        Members.user_add_magazine(
+                                        Members.member_add_magazine(
                                             select_member,
                                             ISSN_number_to_issue,
                                             days_to_issue
@@ -93,7 +93,7 @@ if user_input == '1':
                                         data, header = Book.show_all_book()
                                         print(print_table(data, header))
                                         ISBN_number_to_return = return_book_menu()
-                                        Members.user_return_book(
+                                        Members.member_return_book(
                                             select_member,
                                             ISBN_number_to_return
                                         )
@@ -106,7 +106,7 @@ if user_input == '1':
                                         data, header = MagazineClass.show_all_magazine()
                                         print(print_table(data, header))
                                         ISSN_number_to_return = return_magazine_menu()
-                                        Members.user_return_magazine(
+                                        Members.member_return_magazine(
                                             select_member,
                                             ISSN_number_to_return
                                         )

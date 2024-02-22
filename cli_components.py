@@ -176,7 +176,7 @@ def issue_book_menu():
 
 
 def return_book_menu():
-    return validate_length("\nEnter the ISBN number of the book you want to return", "'-' or spaces", 13)
+    return validate_length("ISBN number of the book to return", "'-' or spaces", 13)
 
 
 def issue_magazine_menu():
@@ -202,6 +202,7 @@ def show_fine_menu(username):
 
 def error_assci():
     system("clear")
+    print('\n\n')
     print_center("    Database Error              |     |     ")
     print_center("                                \\_V_//     ")
     print_center("                                \/=|=\/     ")

@@ -8,13 +8,13 @@ from databse_connection.connect_db import Librarian, Magazine,  User, Books, \
 
 class Members():
     def __init__(self, username, email, address, phone_number) -> None:
-        user_to_add = User(username=username, email=email,
+        member_to_add = User(username=username, email=email,
                            address=address, phone_number=phone_number)
-        session.add(user_to_add)
+        session.add(member_to_add)
         try_session_commit(session)
 
     @staticmethod
-    def user_add_book(username, ISBN_number, days=15):
+    def member_add_book(username, ISBN_number, days=15):
         book_to_add = session.query(Books).where(
             Books.ISBN_number == ISBN_number).one()
         user_object = session.query(User).where(
@@ -42,7 +42,7 @@ class Members():
             print("You have already issued this same book already.")
 
     @staticmethod
-    def user_add_magazine(username, ISSN_number, days=15):
+    def member_add_magazine(username, ISSN_number, days=15):
         magazine_to_add = session.query(Magazine).where(
             Magazine.ISSN_number == ISSN_number).one()
         user_object = session.query(User).where(
@@ -59,7 +59,7 @@ class Members():
         try_session_commit(session)
 
     @staticmethod
-    def user_return_book(username, ISBN_number):
+    def member_return_book(username, ISBN_number):
         book_to_return = session.query(Books).where(
             Books.ISBN_number == ISBN_number).one()
         user_object = session.query(User).where(
@@ -100,7 +100,7 @@ class Members():
         try_session_commit(session)
 
     @staticmethod
-    def user_return_magazine(username, ISSN_number):
+    def member_return_magazine(username, ISSN_number):
         magazine_to_return = session.query(Magazine).where(
             Magazine.ISSN_number == ISSN_number).one()
         user_object = session.query(User).where(
