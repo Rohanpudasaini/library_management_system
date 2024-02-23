@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from cli_components import try_convert_to_int
 from databse_connection.connect_db import Librarian, Magazine,  User, Books, \
-    Publisher, Record, session, try_session_commit, Genre, MemberBooks, MemberMagazine
+    Publisher, Record, session, try_session_commit, Genre, MemberBooks, MemberMagazine,\
+        NoResultFound
 
 
 
@@ -15,15 +16,21 @@ class Members():
 
     @staticmethod
     def member_add_book(username, ISBN_number, days=15):
-        book_to_add = session.query(Books).where(
-            Books.ISBN_number == ISBN_number).one()
+        try:
+            book_to_add = session.query(Books).where(
+                Books.ISBN_number == ISBN_number).one()
+        except NoResultFound:
+            print(f"No Book with the ISBN number {ISBN_number}")
+            input("Press any key to continue")
+            return 
         user_object = session.query(User).where(
             User.username == username).one()
-        user_object.book_id = [book_to_add]
+        user_object.book_id += [book_to_add]
         book_to_add.available_number -= 1
         user_already_exsist = session.query(Record).where(
             Record.book_id == book_to_add.ISBN_number,
-            Record.member_id == user_object.id
+            Record.member_id == user_object.id,
+            Record.returned == False
         ).count()
         if not user_already_exsist and book_to_add.available_number > 0:
             record_to_add = Record(
@@ -40,35 +47,61 @@ class Members():
 
         else:
             print("You have already issued this same book already.")
+            input("Press any key to continue")
 
     @staticmethod
     def member_add_magazine(username, ISSN_number, days=15):
-        magazine_to_add = session.query(Magazine).where(
-            Magazine.ISSN_number == ISSN_number).one()
+        try:
+            magazine_to_add = session.query(Magazine).where(
+                Magazine.ISSN_number == ISSN_number).one()
+        except NoResultFound:
+            print(f"No Magazine with the ISSN number {ISSN_number}")
+            input("Press any key to continue")
+            return 
         user_object = session.query(User).where(
             User.username == username).one()
-        user_object.magazine_id = [magazine_to_add]
-        magazine_to_add.available_number -= 1
-        record_to_add = Record(
-            user=user_object, magazine=magazine_to_add,
-            genre=magazine_to_add.genre, issued_date=datetime.utcnow().date(),
-            expected_return_date=(
-                datetime.utcnow().date() + timedelta(days=days))
-        )
-        session.add(record_to_add)
-        try_session_commit(session)
+        user_object.magazine_id += [magazine_to_add]
+        user_already_exsist = session.query(Record).where(
+            Record.magazine_id == magazine_to_add.ISSN_number,
+            Record.member_id == user_object.id,
+            Record.returned == False
+        ).count()
+        if not user_already_exsist and magazine_to_add.available_number > 0:
+            magazine_to_add.available_number -= 1
+            record_to_add = Record(
+                user=user_object, 
+                magazine=magazine_to_add,
+                genre=magazine_to_add.genre, 
+                issued_date=datetime.utcnow().date(),
+                expected_return_date=(
+                    datetime.utcnow().date() + timedelta(days=days))
+            )
+            session.add(record_to_add)
+            try_session_commit(session)
+        elif magazine_to_add.available_number == 0:
+            print(
+                "This Magazine is curently out of stock, please check again after some days.")
+
+        else:
+            print("You have already issued this same magazine already.")
+            input("Press any key to continue")
 
     @staticmethod
     def member_return_book(username, ISBN_number):
-        book_to_return = session.query(Books).where(
-            Books.ISBN_number == ISBN_number).one()
+        try:
+            book_to_return = session.query(Books).where(
+                Books.ISBN_number == ISBN_number).one()
+        except NoResultFound:
+            print(f"No Book with the ISBN number {ISBN_number}")
+            input("Press any key to continue")
+            return 
         user_object = session.query(User).where(
             User.username == username).one()
         got_record = session.query(Record).where(
             Record.member_id == user_object.id,
             Record.book_id == ISBN_number,
             Record.returned == False
-        ).all()
+        ).one_or_none()
         
         if got_record:
             # user_object
@@ -101,15 +134,21 @@ class Members():
 
     @staticmethod
     def member_return_magazine(username, ISSN_number):
-        magazine_to_return = session.query(Magazine).where(
-            Magazine.ISSN_number == ISSN_number).one()
+        try:
+            magazine_to_return = session.query(Magazine).where(
+            Magazine.ISSN_number == ISSN_number).one_or_none()
+            
+        except NoResultFound:
+            print(f"No Magazine with the ISSN number {ISSN_number}")
+            input("Press any key to continue")
+            return 
         user_object = session.query(User).where(
             User.username == username).one()
         got_record = session.query(Record).where(
             Record.member_id == user_object.id,
             Record.magazine_id == ISSN_number,
             Record.returned == False
-        ).all()
+        ).one_or_none()
         if got_record:
         
             magazine_record = session.query(Record).filter(
@@ -134,7 +173,8 @@ class Members():
             ).delete()
         else:
             print(
-                f"The user {username} haven't issued magazine {magazine_to_return.magazine_title}")
+                f"The user {username} haven't issued that magazine")
+            input("Press any key to continue..")
         try_session_commit(session)
         
     @staticmethod
@@ -321,13 +361,18 @@ class Library_Admin:
             
 class Publications:
     def __init__(self,name,address,phone_number):
-        publisher_to_add = Publisher(
-            name = name,
-            address = address,
-            phone_number = phone_number
-        )
-        session.add(publisher_to_add)
-        try_session_commit(session)
+        publication_exsit = session.query(Publisher).where(Publisher.name == name).count()
+        if not publication_exsit:
+            publisher_to_add = Publisher(
+                name = name,
+                address = address,
+                phone_number = phone_number
+            )
+            session.add(publisher_to_add)
+            try_session_commit(session)
+        else:
+            print(f"The Publication with the name {name} already exsit, cant add it again")
+            input("Press any key to continue: ")
         
     @staticmethod
     def show_all_publisher():
@@ -351,9 +396,14 @@ class Publications:
     
 class GenreClass():
     def __init__(self, name) -> None:
-        new_genre = Genre(genre_name=name)
-        session.add(new_genre)
-        try_session_commit(session)
+        genre_exsist = session.query(Genre).where(Genre.genre_name==name).count()
+        if not genre_exsist:
+            new_genre = Genre(genre_name=name)
+            session.add(new_genre)
+            try_session_commit(session)
+        else:
+            print(f"The Genre with the name {name} already exsit, cant add it again")
+            input("Press any key to continue: ")
 
     @staticmethod
     def show_all_genre():

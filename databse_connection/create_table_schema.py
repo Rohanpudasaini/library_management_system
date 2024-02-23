@@ -186,7 +186,7 @@ def create_database(engine, session, dummy_data):
                       genre=genre3
                       )
         
-        magazine1 = Magazine(ISSN_number='1234567891011', 
+        magazine1 = Magazine(ISSN_number='12345678', 
                              editor='Rohan', 
                              magazine_title='Very Good Magazine',
                              price=800, available_number=10, 
