@@ -74,7 +74,8 @@ if user_input == '1':
                                         print('\n')
                                         print(print_table(data, header))
                                         result = issue_book_menu()
-                                        if result == None: continue
+                                        if result == None:
+                                            continue
                                         ISBN_number_to_issue, days_to_issue = result
                                         Members.member_add_book(
                                             select_member,
@@ -89,8 +90,9 @@ if user_input == '1':
                                         print('\n')
                                         print(print_table(data, header))
                                         result = issue_magazine_menu()
-                                        if result == None: continue
-                                        ISSN_number_to_issue, days_to_issue= result
+                                        if result == None:
+                                            continue
+                                        ISSN_number_to_issue, days_to_issue = result
                                         Members.member_add_magazine(
                                             select_member,
                                             ISSN_number_to_issue,
@@ -105,7 +107,8 @@ if user_input == '1':
                                         data, header = Book.show_all_book()
                                         print(print_table(data, header))
                                         ISBN_number_to_return = return_book_menu()
-                                        if ISBN_number_to_return == None: continue
+                                        if ISBN_number_to_return == None:
+                                            continue
                                         Members.member_return_book(
                                             select_member,
                                             ISBN_number_to_return
@@ -119,7 +122,8 @@ if user_input == '1':
                                         data, header = MagazineClass.show_all_magazine()
                                         print(print_table(data, header))
                                         ISSN_number_to_return = return_magazine_menu()
-                                        if ISSN_number_to_return == None: continue
+                                        if ISSN_number_to_return == None:
+                                            continue
                                         Members.member_return_magazine(
                                             select_member,
                                             ISSN_number_to_return
@@ -157,7 +161,8 @@ if user_input == '1':
                         data, header = GenreClass.show_all_genre()
                         print(print_table(data, header))
                         result = book_add_choice()
-                        if result == None: continue
+                        if result == None:
+                            continue
                         ISBN_number, book_title, price, author, available_number, publisher, genre = result
                         publisher_object = Publications.get_publisher_object(
                             publisher)
@@ -203,7 +208,8 @@ if user_input == '1':
                         data, header = GenreClass.show_all_genre()
                         print(print_table(data, header))
                         result = magazine_add_choice()
-                        if result == None: continue
+                        if result == None:
+                            continue
                         ISSN_number, magazine_title, price, editor, available_number, publisher, genre = result
                         publisher_object = Publications.get_publisher_object(
                             publisher)

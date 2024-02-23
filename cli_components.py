@@ -20,11 +20,11 @@ def print_center(message):
     print(message.center(columns))
 
 
-def validate_length_and_digit(name:str, without=None, length=None ):
-    tried = 5 
+def validate_length_and_digit(name: str, without=None, length=None):
+    tried = 5
     while True:
         returning_name = input_strip(
-                f"\nEnter the {name}  without {without}: ")
+            f"\nEnter the {name}  without {without}: ")
         if len(str(returning_name)) == length and str(returning_name).isdigit():
             return returning_name
         elif not str(returning_name).isdigit():
@@ -32,10 +32,9 @@ def validate_length_and_digit(name:str, without=None, length=None ):
         elif len(returning_name) != length:
             print(f"Please make sure the input is {length} long")
         tried -= 1
-        print(f"You got {tried} try remaning" )
-        if tried ==0:
+        print(f"You got {tried} try remaning")
+        if tried == 0:
             return None
-        
 
 
 def input_strip(message):
@@ -116,7 +115,8 @@ def book_add_choice():
     author = input_strip("\nEnter the Author name: ")
     available_number = try_convert_to_int(
         "Enter the number of books available: ")
-    publisher = try_convert_to_int("\nEnter the publisher's ID from table above: ")
+    publisher = try_convert_to_int(
+        "\nEnter the publisher's ID from table above: ")
     genre = try_convert_to_int("\nEnter The genre ID from above table: ")
     return (ISBN_number, book_title, price, author, available_number, publisher, genre)
 
@@ -141,14 +141,16 @@ def magazine_add_choice():
 
     # ISSN_number = input("\nEnter the ISSN Number of Magazine: ")
     ISSN_number = validate_length_and_digit('ISSN number', "- or spaces", 8)
-    if ISSN_number ==None: return None
+    if ISSN_number == None:
+        return None
     magazine_title = input_strip("\nEnter Magazine Title: ")
     price = try_convert_to_int("Enter the price of Magazine: ")
     editor = input_strip("\nEnter the Author name: ")
     available_number = try_convert_to_int(
         "Enter the number of magazine available: ")
 
-    publisher = try_convert_to_int("\nEnter the publisher's ID from table above: ")
+    publisher = try_convert_to_int(
+        "\nEnter the publisher's ID from table above: ")
     # genre = input_strip("\nEnter The genre ID from above table: ")
     genre = try_convert_to_int("\nEnter The genre ID from above table: ")
     return (ISSN_number, magazine_title, price, editor, available_number, publisher, genre)
@@ -160,7 +162,8 @@ def publication_view_choice():
         name = input_strip("\nEnter the name of the publication: ")
         address = input_strip("\nEnter the publication's address: ")
         # phone_number = input("\nEnter the publication's number: ")
-        phone_number = validate_length_and_digit(name="Phone Number", without="country code", length=10)
+        phone_number = validate_length_and_digit(
+            name="Phone Number", without="country code", length=10)
         if name == '' or address == '' or phone_number == '':
             input("All fields are required, please try again.\n\
 \n\nPress any key to continue")
@@ -175,24 +178,26 @@ def add_member_menu():
     username = input_strip("\nEnter the username of the member: ")
     email = input_strip("\nEnter the member's email: ")
     address = input_strip("\nEnter the user's address: ")
-    phone_number = validate_length_and_digit(name="Phone number", without= "country code", length=10)
+    phone_number = validate_length_and_digit(
+        name="Phone number", without="country code", length=10)
     return username, email, address, phone_number
 
 
 def print_table(data_row, header):
     return tabulate(
-        tabular_data=data_row, 
-        headers=header, 
-        tablefmt='fancy_grid',  
+        tabular_data=data_row,
+        headers=header,
+        tablefmt='fancy_grid',
         maxcolwidths=[None, None, 40]
-        )
+    )
 
 
 def issue_book_menu():
     # ISBN_to_issue = input("\nEnter the ISBN number of the book you want: ")
     ISBN_to_issue = validate_length_and_digit(
         name="ISBN number to issue book", without="'-' or spaces", length=13)
-    if ISBN_to_issue ==None: return None
+    if ISBN_to_issue == None:
+        return None
     days = input_strip(
         "\nDo you want to take this book for more than 15 days (y/n): ").lower()
     days_to_add = 15
@@ -203,16 +208,19 @@ def issue_book_menu():
 
 
 def return_book_menu():
-    ISBN_to_return  = validate_length_and_digit(name="ISBN number of the book to return", without="'-' or spaces", length=13)
+    ISBN_to_return = validate_length_and_digit(
+        name="ISBN number of the book to return", without="'-' or spaces", length=13)
     return ISBN_to_return
 
 
 def issue_magazine_menu():
     # ISSN_to_issue = str(try_convert_to_int(input_strip(
-        # "\nEnter the ISSN number of the magazine you want to return: ")))
+    # "\nEnter the ISSN number of the magazine you want to return: ")))
     # try_convert_to_int(ISSN_to_issue)
-    ISSN_to_issue = validate_length_and_digit(name = "ISSN number of the magazine you want to Issue", without="'-' or spaces", length=8)
-    if ISSN_to_issue == None: return None
+    ISSN_to_issue = validate_length_and_digit(
+        name="ISSN number of the magazine you want to Issue", without="'-' or spaces", length=8)
+    if ISSN_to_issue == None:
+        return None
     days = input_strip(
         "\nDo you want to take this book for more than 15 days (y/n): ").lower()
     days_to_add = 15
@@ -223,8 +231,9 @@ def issue_magazine_menu():
 
 
 def return_magazine_menu():
-    ISSN_to_return = validate_length_and_digit(name = "ISSN number of the magazine you want to return", without="'-' or spaces", length=8)
-    return ISSN_to_return    
+    ISSN_to_return = validate_length_and_digit(
+        name="ISSN number of the magazine you want to return", without="'-' or spaces", length=8)
+    return ISSN_to_return
 
 
 def show_fine_menu(username):
@@ -254,8 +263,8 @@ def error_assci():
     print_center("       ___      ___   ]/000o   /__\ \ C / / ")
     print_center("          \    /              /....\ \_/ /  ")
     print_center("       ....\||/....           [___/=\___/   ")
-    print_center("      .    .  .    .          [...] [...]   ")
-    print_center("     .      ..      .         [___/ \___]   ")
+    print_center("      .  Database  .          [...] [...]   ")
+    print_center("     .    Error     .         [___/ \___]   ")
     print_center("     .    0 .. 0    .         <---> <--->   ")
     print_center("  /\/\.    .  .    ./\/\      [..]   [..]   ")
     print_center(" / / / .../|  |\... \ \ \    _[__]   [__]_  ")
