@@ -116,8 +116,8 @@ def book_add_choice():
     author = input_strip("\nEnter the Author name: ")
     available_number = try_convert_to_int(
         "Enter the number of books available: ")
-    publisher = input_strip("\nEnter the publisher's Name from table above: ")
-    genre = input_strip("\nEnter The genre name from above table: ")
+    publisher = try_convert_to_int("\nEnter the publisher's ID from table above: ")
+    genre = try_convert_to_int("\nEnter The genre ID from above table: ")
     return (ISBN_number, book_title, price, author, available_number, publisher, genre)
 
 
@@ -125,6 +125,10 @@ def genre_view_choice():
     add_genre = input_strip("\n1: Add Genre \n2: Back\n\n")
     if add_genre == '1':
         name = input_strip("\nEnter the name of the Genre: ")
+        if name == '':
+            print("The name can't be empty, please try again")
+            input("Press any key to continue")
+            return None
         return name
     elif add_genre == '2':
         return None
@@ -144,8 +148,9 @@ def magazine_add_choice():
     available_number = try_convert_to_int(
         "Enter the number of magazine available: ")
 
-    publisher = input_strip("\nEnter the publisher's Name from table above: ")
-    genre = input_strip("\nEnter The genre name from above table: ")
+    publisher = try_convert_to_int("\nEnter the publisher's ID from table above: ")
+    # genre = input_strip("\nEnter The genre ID from above table: ")
+    genre = try_convert_to_int("\nEnter The genre ID from above table: ")
     return (ISSN_number, magazine_title, price, editor, available_number, publisher, genre)
 
 
@@ -156,6 +161,10 @@ def publication_view_choice():
         address = input_strip("\nEnter the publication's address: ")
         # phone_number = input("\nEnter the publication's number: ")
         phone_number = validate_length_and_digit(name="Phone Number", without="country code", length=10)
+        if name == '' or address == '' or phone_number == '':
+            input("All fields are required, please try again.\n\
+\n\nPress any key to continue")
+            return None
         return name, address, phone_number
     elif add_publication == '2':
         return None
@@ -171,7 +180,12 @@ def add_member_menu():
 
 
 def print_table(data_row, header):
-    return tabulate(tabular_data=data_row, headers=header, tablefmt='fancy_grid')
+    return tabulate(
+        tabular_data=data_row, 
+        headers=header, 
+        tablefmt='fancy_grid',  
+        maxcolwidths=[None, None, 40]
+        )
 
 
 def issue_book_menu():
@@ -214,8 +228,12 @@ def return_magazine_menu():
 
 
 def show_fine_menu(username):
+    print("\n\n")
     print_center(f"Hello {username}, you have some fine remaning!!")
     print_center("please contact account department")
+    print_center("And return the books with fine")
+    print("\n\n")
+    input_strip("Press any key to continue")
 
 
 def error_assci():

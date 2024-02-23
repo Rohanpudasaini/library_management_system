@@ -3,7 +3,8 @@ from cli_components import try_convert_to_int
 from databse_connection.connect_db import Librarian, Magazine,  User, Books, \
     Publisher, Record, session, try_session_commit, Genre, MemberBooks, MemberMagazine,\
         NoResultFound
-
+import shutil
+columns = shutil.get_terminal_size().columns
 
 
 
@@ -86,8 +87,8 @@ class Members():
             print("You have already issued this same magazine already.")
             input("Press any key to continue")
 
-    @staticmethod
-    def member_return_book(username, ISBN_number):
+    @classmethod
+    def member_return_book(cls,username, ISBN_number):
         try:
             book_to_return = session.query(Books).where(
                 Books.ISBN_number == ISBN_number).one()
@@ -112,10 +113,11 @@ class Members():
                 ).one()
             if books_record.expected_return_date.date() < datetime.utcnow().date():
                 
-                extra_days = (books_record.expected_return_date - datetime.utcnow().date()).days
+                extra_days = (books_record.expected_return_date.date() - datetime.utcnow().date()).days
                 if extra_days > 3:
                     fine = extra_days * 3
-                    user_object.fine += fine
+                    cls.pay_fine(fine_remaning=fine)
+                    
                     # try_session_commit(session)
             book_to_return.available_number += 1
             books_record.returned = True   
@@ -132,8 +134,8 @@ class Members():
                 f"The user {username} haven't issued book {book_to_return.book_title}")
         try_session_commit(session)
 
-    @staticmethod
-    def member_return_magazine(username, ISSN_number):
+    @classmethod
+    def member_return_magazine(cls,username, ISSN_number):
         try:
             magazine_to_return = session.query(Magazine).where(
             Magazine.ISSN_number == ISSN_number).one_or_none()
@@ -158,10 +160,10 @@ class Members():
                 ).one()
             if magazine_record.expected_return_date.date() < datetime.utcnow().date():
                 
-                extra_days = (magazine_record.expected_return_date - datetime.utcnow().date()).days
+                extra_days = (magazine_record.expected_return_date.date() - datetime.utcnow().date()).days
                 if extra_days > 3:
                     fine = extra_days * 3
-                    user_object.fine += fine
+                    cls.pay_fine(fine)
                     
             magazine_to_return.available_number += 1
             magazine_record.returned = True
@@ -206,20 +208,45 @@ class Members():
         return (all_member_list, header)
     
     @staticmethod
-    def pay_fine(fine_remaning, columns):
+    def pay_fine(fine_remaning):
         while fine_remaning !=0:
             if fine_remaning >0:
-                print(f"You have {fine_remaning} fee remaning".center(columns) )
+                print(f"You have Rs{fine_remaning} fee remaning".center(columns) )
                 given_payment = try_convert_to_int("Enter the fine ammount: ")
                 fine_remaning = fine_remaning - given_payment
             elif fine_remaning < 0:
-                print(f"You have {fine_remaning * -1} fee overpaid".center(columns) )
+                print(f"You have Rs{fine_remaning * -1} fee overpaid".center(columns) )
                 print("\n Returned the money")
+                input("All fine paid, Thanks you".center(columns))
                 fine_remaning = 0
             else:
                 input("All fine paid, Thanks you".center(columns))
                 break
-                
+    @staticmethod
+    def calculate_fine(user_object):
+        borrowed_records = session.query(Record).where(
+            Record.member_id == user_object.id,
+            Record.returned == False
+            ).all()
+        # fine = 0
+        user_object.fine = 0
+        # print(borrowed_records)
+        # input("Stop1")
+        if borrowed_records:
+            for each_record in  borrowed_records:
+                print(each_record.expected_return_date.date() < datetime.utcnow().date())
+                # input("Stop1.5")
+                if each_record.expected_return_date.date() < datetime.utcnow().date():
+                    extra_days = (datetime.utcnow().date()- each_record.expected_return_date.date() ).days
+                    # print(extra_days)
+                    if extra_days > 3:
+                        fine = extra_days * 3
+                        user_object.fine += fine
+                        try_session_commit(session)
+                        # print(fine)
+                        # print(user_object.fine)
+                        # input("stop2")
+         
             
         
 
@@ -267,17 +294,20 @@ class Book:
                   "Available number", "Publisher", "Genre"
                   ]
         books = session.query(Books).where(Books.user_id.contains(id_given)).all()
-        for book in books:
-            book_list = [
-                book.ISBN_number,
-                book.book_title, 
-                book.author, 
-                book.price,
-                book.available_number,
-                book.publisher.name,
-                book.genre.genre_name
-                         ]
-            books_list.append(book_list)
+        if books:
+            for book in books:
+                book_list = [
+                    book.ISBN_number,
+                    book.book_title, 
+                    book.author, 
+                    book.price,
+                    book.available_number,
+                    book.publisher.name,
+                    book.genre.genre_name
+                             ]
+                books_list.append(book_list)
+        else:
+            books_list=[[]]
         return (books_list, header)
 
 class MagazineClass:
@@ -323,17 +353,20 @@ class MagazineClass:
         header = ["ISSN Number","Title" ,"Editor", "Price", 
                   "Available number", "Publisher", "Genre"]
         magazines = session.query(Magazine).where(Magazine.user_id.contains(user_id)).all()
-        for magazine in magazines:
-            magazine_list = [
-                magazine.ISSN_number,
-                magazine.magazine_title, 
-                magazine.editor, 
-                magazine.price,
-                magazine.available_number,
-                magazine.publisher.name,
-                magazine.genre.genre_name
-                         ]
-            magazines_list.append(magazine_list)
+        if magazines:
+            for magazine in magazines:
+                magazine_list = [
+                    magazine.ISSN_number,
+                    magazine.magazine_title, 
+                    magazine.editor, 
+                    magazine.price,
+                    magazine.available_number,
+                    magazine.publisher.name,
+                    magazine.genre.genre_name
+                             ]
+                magazines_list.append(magazine_list)
+        else:
+            magazines_list = [[]]
         return (magazines_list, header)
 
 class Library_Admin:
@@ -392,7 +425,7 @@ class Publications:
 
     @staticmethod
     def get_publisher_object(publisher_name):
-        return session.query(Publisher).where(Publisher.name== publisher_name).one_or_none()
+        return session.query(Publisher).where(Publisher.id== publisher_name).one_or_none()
     
 class GenreClass():
     def __init__(self, name) -> None:
@@ -417,5 +450,5 @@ class GenreClass():
     
     @staticmethod
     def get_genre_object(genre_name):
-        return session.query(Genre).where(Genre.genre_name== genre_name).one_or_none()
+        return session.query(Genre).where(Genre.id== genre_name).one_or_none()
     

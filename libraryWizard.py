@@ -58,9 +58,11 @@ if user_input == '1':
                                 continue
 
                             else:
+                                Members.calculate_fine(user_object)
                                 if user_object.fine > 0:
                                     show_fine_menu(user_object.username)
-                                    Members.pay_fine(user_object.fine, columns)
+                                    # Members.pay_fine(user_object.fine, columns)
+                                    # user_object.fine = 0
                                 while True:
                                     user_member_choice = member_view_choice(
                                         user_object.username)

@@ -253,13 +253,7 @@ def create_database(engine, session, dummy_data):
             phone_number=9810234567,
         )
         
-        librarian2 = Librarian(
-            name='Sakar Poudel',
-            email='admin@lms.com',
-            password='admin',
-            address='Kathmandu',
-            phone_number=9810234567,
-        )
+        
 
         session.add_all([
             record_to_add,
@@ -268,8 +262,16 @@ def create_database(engine, session, dummy_data):
             record_to_add4,
             record_to_add5,
             librarian1,
-            librarian2
+            
         ])
+        librarian2 = Librarian(
+            name='Sakar Poudel',
+            email='admin@lms.com',
+            password='admin',
+            address='Kathmandu',
+            phone_number=9810234567,
+        )
+        session.add(librarian2)
         session.commit()
 
 def try_session_commit(session):
