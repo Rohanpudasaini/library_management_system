@@ -236,9 +236,9 @@ def return_magazine_menu():
     return ISSN_to_return
 
 
-def show_fine_menu(username):
+def show_fine_menu(username, fine):
     print("\n\n")
-    print_center(f"Hello {username}, you have some fine remaning!!")
+    print_center(f"Hello {username}, you have Rs{fine} fine remaning!!")
     print_center("please contact account department")
     print_center("And return the books with fine")
     print("\n\n")

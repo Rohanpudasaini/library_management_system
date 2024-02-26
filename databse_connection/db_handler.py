@@ -144,8 +144,6 @@ class Members():
 
         if borrowed_records:
             for each_record in borrowed_records:
-                print(each_record.expected_return_date.date()
-                      < datetime.utcnow().date())
 
                 if each_record.expected_return_date.date() < datetime.utcnow().date():
                     extra_days = (datetime.utcnow().date() -
@@ -182,11 +180,11 @@ class Members():
             ).one()
             if books_record.expected_return_date.date() < datetime.utcnow().date():
 
-                extra_days = (books_record.expected_return_date.date(
-                ) - datetime.utcnow().date()).days
+                extra_days = (datetime.utcnow().date()- books_record.expected_return_date.date()).days 
                 if extra_days > 3:
                     fine = extra_days * 3
                     cls.pay_fine(fine_remaning=fine)
+                    user_object.fine = 0
 
                     # try_session_commit(session)
             book_to_return.available_number += 1
@@ -297,16 +295,25 @@ class Book:
             Books.user_id.contains(id_given)).all()
         if books:
             for book in books:
-                book_list = [
-                    book.ISBN_number,
-                    book.book_title,
-                    book.author,
-                    book.price,
-                    book.available_number,
-                    book.publisher.name,
-                    book.genre.genre_name
-                ]
-                books_list.append(book_list)
+                not_returned = session.query(
+                    Record
+                    ).where(
+                        Record.member_id==1, 
+                        Record.book_id=="1234567891013", 
+                        Record.returned==False
+                        ).one_or_none()
+                    
+                if not_returned:
+                    book_list = [
+                        book.ISBN_number,
+                        book.book_title,
+                        book.author,
+                        book.price,
+                        book.available_number,
+                        book.publisher.name,
+                        book.genre.genre_name
+                    ]
+                    books_list.append(book_list)
         else:
             books_list = [[]]
         return (books_list, header)

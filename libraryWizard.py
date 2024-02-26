@@ -60,7 +60,7 @@ if user_input == '1':
                             else:
                                 Members.calculate_fine(user_object)
                                 if user_object.fine > 0:
-                                    show_fine_menu(user_object.username)
+                                    show_fine_menu(user_object.username, user_object.fine)
                                     # Members.pay_fine(user_object.fine, columns)
                                     # user_object.fine = 0
                                 while True:
