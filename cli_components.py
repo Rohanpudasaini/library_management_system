@@ -236,12 +236,14 @@ def return_magazine_menu():
     return ISSN_to_return
 
 
-def show_fine_menu(username, fine):
+def show_fine_menu(username, fine, books_or_magazine):
     print("\n\n")
     print_center(f"Hello {username}, you have Rs{fine} fine remaning!!")
     print_center("please contact account department")
     print_center("And return the books with fine")
     print("\n\n")
+    print_center("Following Books or magazine's overdue, please return them:")
+    print(print_table(books_or_magazine,["Issued Items", "Expected Return Date"]))
     input_strip("Press any key to continue")
 
 

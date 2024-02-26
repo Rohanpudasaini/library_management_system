@@ -141,18 +141,27 @@ class Members():
             Record.returned == False
         ).all()
         user_object.fine = 0
-
+        expired_books_or_magazine = []
         if borrowed_records:
             for each_record in borrowed_records:
+                
 
                 if each_record.expected_return_date.date() < datetime.utcnow().date():
                     extra_days = (datetime.utcnow().date() -
                                   each_record.expected_return_date.date()).days
-
+                    if  each_record.book:
+                        expired_books_or_magazine.append(
+                            [str(each_record.book.book_title) + " Book", each_record.expected_return_date.date()]
+                            )
+                    if  each_record.magazine:
+                        expired_books_or_magazine.append(
+                            [str(each_record.magazine.magazine_title) + " Magazine", each_record.expected_return_date.date()]
+                            )
                     if extra_days > 3:
                         fine = extra_days * 3
                         user_object.fine += fine
                         try_session_commit(session)
+            return  expired_books_or_magazine
 
     @classmethod
     def member_return_book(cls, username, ISBN_number):

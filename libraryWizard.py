@@ -58,9 +58,12 @@ if user_input == '1':
                                 continue
 
                             else:
-                                Members.calculate_fine(user_object)
+                                books_or_magazine = Members.calculate_fine(user_object)
+                                # issued_items = []
+                                # issued_items.append([books_or_magazine])
+                                # print(issued_items)
                                 if user_object.fine > 0:
-                                    show_fine_menu(user_object.username, user_object.fine)
+                                    show_fine_menu(user_object.username, user_object.fine, books_or_magazine)
                                     # Members.pay_fine(user_object.fine, columns)
                                     # user_object.fine = 0
                                 while True:
