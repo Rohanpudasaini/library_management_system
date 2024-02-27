@@ -8,11 +8,19 @@ columns = shutil.get_terminal_size().columns
 
 
 class Members():
-    def __init__(self, username, email, address, phone_number) -> None:
-        member_to_add = User(username=username, email=email,
-                             address=address, phone_number=phone_number)
-        session.add(member_to_add)
-        try_session_commit(session)
+    def __init__(self, username, session, email, address, phone_number) -> None:
+        self.username = username
+        # member_to_add = User(username=username, email=email,
+        #                      address=address, phone_number=phone_number)
+        # session.add(member_to_add)
+        # try_session_commit(session)
+        
+    def get_by_username(self):
+        return User.by_(self.username)
+    
+    @classmethod
+    def get_by_user_name(cls, username):
+        return User.by_(username)
 
     @staticmethod
     def member_add_book(username, ISBN_number, days=15):
@@ -295,7 +303,9 @@ class Book:
         return (books_list, header)
 
     @staticmethod
-    def show_users_all_book(id_given):
+    def show_users_all_book(book_id):
+        # TODO: retrieve time taken to perform below operation
+        # add dummy data in order to make this table huge, then see how your query performs
         books_list = []
         header = ["ISBN Number", "Title", "Author", "Price",
                   "Available number", "Publisher", "Genre"
@@ -384,8 +394,8 @@ class MagazineClass:
                     magazine.genre.genre_name
                 ]
                 magazines_list.append(magazine_list)
-        else:
-            magazines_list = [[]]
+        # else:
+        #     magazines_list = []
         return (magazines_list, header)
 
 
@@ -408,13 +418,15 @@ class Library_Admin:
             Librarian.email == email,
             Librarian.password == password
         ).one_or_none()
+        return librarian_object.name if librarian_object else None
         if librarian_object:
             return True, librarian_object.name
         return False, None
 
 
-class Publications:
+class PublicationAdapter:
     def __init__(self, name, address, phone_number):
+        # unique constraint
         publication_exsit = session.query(Publisher).where(
             Publisher.name == name).count()
         if not publication_exsit:
