@@ -468,6 +468,20 @@ class Magazine(Base):
     publisher_id = Column(Integer, ForeignKey('publishers.id'))
     available_number = Column(Integer, default=0)
     record = relationship('Record', backref='magazine')
+    
+    def __init__(self, issn_number, editor, magazine_title,
+                 price, available_number, publisher, genre):
+        self.issn_number = issn_number
+        self.editor = editor
+        self.magazine_title = magazine_title
+        self.price = price
+        self.available_number = available_number
+        self.publisher = publisher
+        self.genre = genre
+        
+    def add(self):
+        self.session.add(self)
+        try_session_commit(self.session)
 
 
 
