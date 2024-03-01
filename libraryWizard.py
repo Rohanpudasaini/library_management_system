@@ -10,6 +10,14 @@ from cli_components import assci_art, issue_book_menu, issue_magazine_menu, libr
 from time import sleep
 logged_in = False
 # while True:
+user_header  = ['Username', 'Membership Expiry date',
+                  'Books Issued', 'Magazine Issued']
+
+publisher_header = ["ID", "Name", "Address", "Phone Number"]
+
+book_header = ["ISBN Number", "Title", "Author", "Price",
+                  "Available number", "Publisher", "Genre"
+                  ]
 
 assci_art()
 user_input = main_menu_choice()
@@ -135,9 +143,9 @@ if user_input == '1':
                                     elif user_member_choice == '5':
                                         system('clear')
                                         print("\n\nAll Book")
-                                        data, header = Book.show_users_all_book(
+                                        data = Book.get_unreturned_user_books(
                                             user_object)
-                                        print(print_table(data, header))
+                                        print(print_table(data, book_header))
                                         print("\n\nAll Magazine")
                                         data, header = MagazineClass.show_users_all_magazine(
                                             user_object)

@@ -1,10 +1,9 @@
 import os
 from sqlalchemy import text, create_engine, URL, inspect
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import NoResultFound
+
 from dotenv import load_dotenv
-from databse_connection.create_table_schema import create_database, Librarian, Magazine, \
-    MemberBooks, User, Books, Publisher, Record, MemberMagazine, try_session_commit, Genre
+from databse_connection.models import create_database
 from cli_components import error_assci
 
 load_dotenv()
@@ -22,7 +21,7 @@ url = URL.create(
     host=host,
     drivername="postgresql"
 )
-engine = create_engine(url, echo=False)
+engine = create_engine(url)
 session = Session(bind=engine)
 tables = inspect(engine).get_table_names()
 
@@ -40,5 +39,5 @@ if len(tables) < 9:
     if tables:
         table_string = ", ".join(tables)
         session.execute(text(f"DROP TABLE {table_string};"))
-    create_database(engine, session, dummy_data)
+    create_database(engine,  dummy_data, session,)
     print("Database Created")
