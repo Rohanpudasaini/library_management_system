@@ -4,7 +4,13 @@ from sqlalchemy import Column, String, DateTime, BigInteger, Integer, ForeignKey
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from cli_components import try_convert_to_int, columns
-# from connect_db import session
+import os
+from sqlalchemy import text, create_engine, URL, inspect
+from sqlalchemy.orm import Session
+
+from dotenv import load_dotenv
+from cli_components import error_assci
+
 
 
 
@@ -60,9 +66,8 @@ class User(Base):
         'Magazine', secondary='member_magazine', back_populates='user_id')
     record = relationship('Record', backref='user')
     
-    def __init__(self, username, session, email, address, phone_number, book_id=None, magazine_id =None) -> None:
+    def __init__(self, username, email, address, phone_number, book_id=None, magazine_id =None) -> None:
         self.username = username
-        self.session = session
         self.email = email
         self.address = address
         self.phone_number = phone_number
@@ -73,27 +78,27 @@ class User(Base):
         
     
     def add(self):
-        self.session.add(self)
-        try_session_commit(self.session)
+        session.add(self)
+        try_session_commit(session)
         
  
     def get_user_object(self):
-        return self.session.query(User).where(
+        return session.query(User).where(
                 User.username == self.username).one()        
 
-       
-    def user_add_book(self, isbn_number, days=15):
-        book_to_add = self.session.query(Book).where(
+        
+    def add_book(self, isbn_number, days=15):
+        book_to_add = session.query(Book).where(
             Book.isbn_number == isbn_number).one_or_none()
         if not book_to_add:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 f"No Book with the ISBN number {isbn_number}")
         
         user_object = self.get_user_object()
         
         user_object.book_id += [book_to_add]
         book_to_add.available_number -= 1
-        user_already_exsist = self.session.query(Record).where(
+        user_already_exsist = session.query(Record).where(
             Record.book_id == book_to_add.isbn_number,
             Record.member_id == user_object.id,
             Record.returned == False
@@ -105,28 +110,28 @@ class User(Base):
                 expected_return_date=(
                     datetime.utcnow().date() + timedelta(days=days))
             )
-            self.session.add(book_record)
-            try_session_commit(self.session)
+            session.add(book_record)
+            try_session_commit(session)
         elif book_to_add.available_number == 0:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 "This book is curently out of stock, please check again after some days.")
 
         else:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 "You have already issued this same book already.")
         
     
-    def member_add_magazine(self, issn_number, days=15):
+    def add_magazine(self, issn_number, days=15):
         
-        magazine_to_add = self.session.query(Magazine).where(
+        magazine_to_add = session.query(Magazine).where(
             Magazine.issn_number == issn_number).one_or_none()
         if not magazine_to_add:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 f"No Magazine with the ISSN number {issn_number}")
             
         user_object = self.get_user_object()
         user_object.magazine_id += [magazine_to_add]
-        user_already_exsist = self.session.query(Record).where(
+        user_already_exsist = session.query(Record).where(
             Record.magazine_id == magazine_to_add.issn_number,
             Record.member_id == user_object.id,
             Record.returned == False
@@ -142,20 +147,20 @@ class User(Base):
                 expected_return_date=(
                     datetime.utcnow().date() + timedelta(days=days))
             )
-            self.session.add(magazine_record)
-            try_session_commit(self.session)
+            session.add(magazine_record)
+            try_session_commit(session)
         elif magazine_to_add.available_number == 0:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 "This Magazine is curently out of stock, please check again after some days.")
 
         else:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 "You have already issued this same magazine already.")
      
      
     def calculate_fine(self):
         user_object = self.get_user_object()
-        borrowed_records = self.session.query(Record).where(
+        borrowed_records = session.query(Record).where(
             Record.member_id == user_object.id,
             Record.returned == False
         ).all()
@@ -180,20 +185,20 @@ class User(Base):
                     if extra_days > 3:
                         fine = extra_days * 3
                         user_object.fine += fine
-                        try_session_commit(self.session)
+                        try_session_commit(session)
             return expired_books_or_magazine 
      
 
-    def member_return_book(self, isbn_number):
+    def return_book(self, isbn_number):
 
-            book_to_return = self.session.query(Book).where(
+            book_to_return = session.query(Book).where(
                 Book.isbn_number == isbn_number).one_or_none()
             if not book_to_return:
-                return CustomDatabaseException(
+                raise CustomDatabaseException(
                     f"No Book with the ISBN number {isbn_number}")
                 
             user_object = self.get_user_object()
-            got_record = self.session.query(Record).where(
+            got_record = session.query(Record).where(
                 Record.member_id == user_object.id,
                 Record.book_id == isbn_number,
                 Record.returned == False
@@ -201,7 +206,7 @@ class User(Base):
 
             if got_record:
                 # user_object
-                books_record = self.session.query(Record).filter(
+                books_record = session.query(Record).filter(
                     Record.member_id == user_object.id,
                     Record.book_id == isbn_number,
                     Record.returned == False
@@ -220,35 +225,35 @@ class User(Base):
                 books_record.returned = True
                 # books_record.returned_date = datetime.utcnow().date()
                 
-                self.session.query(MemberBook).filter(
+                session.query(MemberBook).filter(
                     MemberBook.book_id == isbn_number,
                     MemberBook.user_id == user_object.id
                 ).delete()
 
             else:
-                return CustomDatabaseException(
+                raise CustomDatabaseException(
                     f"The user {self.username} haven't issued book {book_to_return.title}")
-            try_session_commit(self.session)
+            try_session_commit(session)
 
 
-    def member_return_magazine(self, username, issn_number):
+    def return_magazine(self, issn_number):
         
-        magazine_to_return = self.session.query(Magazine).where(
+        magazine_to_return = session.query(Magazine).where(
             Magazine.issn_number == issn_number).one_or_none()
 
         if not magazine_to_return:
-            return CustomDatabaseException(
+            raise CustomDatabaseException(
                 f"No Magazine with the ISSN number {issn_number}")
             
         user_object = self.get_user_object()
-        got_record = self.session.query(Record).where(
+        got_record = session.query(Record).where(
             Record.member_id == user_object.id,
             Record.magazine_id == issn_number,
             Record.returned == False
         ).one_or_none()
         if got_record:
 
-            magazine_record = self.session.query(Record).filter(
+            magazine_record = session.query(Record).filter(
                 Record.member_id == user_object.id,
                 Record.magazine_id == issn_number,
                 Record.returned == False
@@ -265,36 +270,36 @@ class User(Base):
             magazine_record.returned = True
             # magazine_record.returned_date = datetime.utcnow().date()
 
-            self.session.query(MemberMagazine).filter(
+            session.query(MemberMagazine).filter(
                 MemberMagazine.magazine_id == issn_number,
                 MemberMagazine.user_id == user_object.id
             ).delete()
         else:
-            return CustomDatabaseException(
-                f"The user {username} haven't issued that magazine")
-        try_session_commit(self.session)
+            raise CustomDatabaseException(
+                f"The user {self.username} haven't issued that magazine")
+        try_session_commit(session)
 
 
     @classmethod
-    def instance_from_username(cls, session,username):
+    def instance_from_username(cls,username):
         User.email
         user_object = session.query(User).where(
             User.username == username).one_or_none()
         if user_object:
-            return cls(
+            object = cls(
                 username=username,
-                session=session,
                 email=user_object.email,
                 address=user_object.address,
                 phone_number=user_object.phone_number
             )
+            return object.get_user_object()
 
         else:
-            return CustomDatabaseException("No such UserName")
+            raise CustomDatabaseException("No such UserName")
 
         
     @staticmethod   
-    def show_all_members(session):
+    def show_all_members():
         all_member_list = []
     
         members = session.query(User).all()
@@ -341,25 +346,25 @@ class Publisher(Base):
     books = relationship('Book', backref='publisher')
     magazine = relationship('Magazine', backref='publisher')
     
-    def __init__(self, name,session, address=None, phone_number=None):
+    def __init__(self, name, address=None, phone_number=None):
         # unique constraint
         self.name = name
         if phone_number:
             self.phone_number = phone_number
         if address:
             self.address= address
-        self.session = session
+        
         
     def add(self):
-        self.session.add(self)
-        try_session_commit(self.session)
+        session.add(self)
+        try_session_commit(session)
         
     
-    def get_publisher_object(self,session):
+    def get_publisher_object(self):
         return session.query(Publisher).where(Publisher.id == self.name).one_or_none()
 
     @staticmethod
-    def show_all_publisher(session):
+    def show_all_publisher():
         publishers_list = []
         publishers = session.query(Publisher).all()
         for publisher in publishers:
@@ -387,46 +392,46 @@ class Book(Base):
     available_number = Column(Integer, default=0)
     record = relationship('Record', backref='book')
 
-    def __init__(self, isbn_number, author, book_title,
-                 price, available_number, publisher, genre, session):
+    def __init__(self, isbn_number, author, title,
+                 price, available_number, publisher, genre):
         self.isbn_number = isbn_number
         self.author=author
-        self.book_title = book_title
+        self.title = title
         self.price = price
         self.available_number = available_number
         self.publisher = publisher
         self.genre = genre
-        self.session = session
+        self.add()
         
         
     def add(self):
-        self.session.add(self)
-        try_session_commit(self.session)
+        session.add(self)
+        try_session_commit(session)
         
         
     @staticmethod
-    def show_all_book(session):
+    def show_all_book():
         books_list = []
         books = session.query(Book).all()
         for book in books:
+            
             book_list = [
                 book.isbn_number,
-                book.book_title,
+                book.title,
                 book.author,
                 book.price,
                 book.available_number,
                 book.publisher.name,
-                book.genre.genre_name
+                book.genre.name
             ]
             books_list.append(book_list)
         return books_list
     
     @staticmethod
-    def get_unreturned_user_books(user_id, session):
+    def get_unreturned_user_books(user_id):
         # TODO: retrieve time taken to perform below operation
         # add dummy data in order to make this table huge, then see how your query performs
         books_list = []
-        
         books = session.query(Book).where(
             Book.user_id.contains(user_id)).all()
         if books:
@@ -434,27 +439,28 @@ class Book(Base):
                 not_returned = session.query(
                     Record
                 ).where(
-                    Record.member_id == user_id,
-                    Record.book_id == book.id,
+                    Record.member_id == user_id.id,
+                    Record.book_id == book.isbn_number,
                     Record.returned == False
                 ).one_or_none()
 
                 if not_returned:
+                    
                     book_list = [
                         book.isbn_number,
-                        book.book_title,
+                        book.title,
                         book.author,
                         book.price,
                         book.available_number,
                         book.publisher.name,
-                        book.genre.genre_name
+                        book.genre.name
                     ]
                     books_list.append(book_list)
-        
+        else:
+            books_list = [[]]
         return books_list
         
-
-
+        
 class Magazine(Base):
     __tablename__ = 'magazines'
     issn_number = Column(String(15), nullable=False,
@@ -469,20 +475,57 @@ class Magazine(Base):
     available_number = Column(Integer, default=0)
     record = relationship('Record', backref='magazine')
     
-    def __init__(self, issn_number, editor, magazine_title,
+    def __init__(self, issn_number, editor, title,
                  price, available_number, publisher, genre):
         self.issn_number = issn_number
         self.editor = editor
-        self.magazine_title = magazine_title
+        self.title = title
         self.price = price
         self.available_number = available_number
         self.publisher = publisher
         self.genre = genre
         
     def add(self):
-        self.session.add(self)
-        try_session_commit(self.session)
+        session.add(self)
+        try_session_commit(session)
+        
+    @staticmethod
+    def show_all_magazine():
+        magazines_list = []
+        magazines = session.query(Magazine).all()
+        for magazine in magazines:
+            magazine_list = [
+                magazine.issn_number,
+                magazine.title,
+                magazine.editor,
+                magazine.price,
+                magazine.available_number,
+                magazine.publisher.name,
+                magazine.genre.name
+            ]
+            magazines_list.append(magazine_list)
+        return magazines_list
 
+    @staticmethod
+    def show_users_all_magazine(user_id):
+        magazines_list = []
+        magazines = session.query(Magazine).where(
+            Magazine.user_id.contains(user_id)).all()
+        if magazines:
+            for magazine in magazines:
+                magazine_list = [
+                    magazine.issn_number,
+                    magazine.title,
+                    magazine.editor,
+                    magazine.price,
+                    magazine.available_number,
+                    magazine.publisher.name,
+                    magazine.genre.name
+                ]
+                magazines_list.append(magazine_list)
+        else:
+            magazines_list = [[]]
+        return magazines_list
 
 
 class Genre(Base):
@@ -492,7 +535,37 @@ class Genre(Base):
     books = relationship('Book', backref='genre')
     magazine = relationship('Magazine', backref='genre')
     record = relationship('Record', backref='genre')
+    
+    def __init__(self, name) -> None:
+        self.name = name
+        # genre_exsist = session.query(Genre).where(
+        #     Genre.name == name).count()
+        # if not genre_exsist:
+        #     new_genre = Genre(name=name)
+        #     session.add(new_genre)
+        #     try_session_commit(session)
+        # else:
+        #     print(
+        #         f"The Genre with the name {name} already exsit, cant add it again")
+        #     input("Press any key to continue: ")
 
+    def add(self):
+        session.add(self)
+        try_session_commit(session)
+    
+    @staticmethod
+    def show_all_genre():
+        genre_lists = []
+        
+        genres = session.query(Genre).all()
+        for genre in genres:
+            genre_list = [genre.id, genre.name]
+            genre_lists.append(genre_list)
+        return genre_lists
+
+    @staticmethod
+    def get_genre_object(name):
+        return session.query(Genre).where(Genre.id == name).one_or_none()
 
 
 class Librarian(Base):
@@ -503,7 +576,27 @@ class Librarian(Base):
     password = Column(String(50), nullable=False)
     address = Column(String(200), nullable=False)
     phone_number = Column(BigInteger())
+    
+    def __init__(self, name, email, password, address, phone_number):
+        librarian1 = Librarian(
+            name=name,
+            email=email,
+            password=password,
+            address=address,
+            phone_number=phone_number
+        )
+        session.add(librarian1)
+        try_session_commit(session)
 
+    @staticmethod
+    def librarian_login(email, password):
+        librarian_object = session.query(Librarian).where(
+            Librarian.email == email,
+            Librarian.password == password
+        ).one_or_none()
+        if librarian_object:
+            return True, librarian_object.name
+        return False, None
 
 
 
@@ -521,7 +614,7 @@ class Record(Base):
     returned = Column(Boolean, default=False)
 
 
-def create_database(engine, dummy_data, session):
+def create_database(engine, dummy_data):
     Base.metadata.create_all(engine)
     if dummy_data:
 
@@ -657,5 +750,39 @@ def create_database(engine, dummy_data, session):
         session.add(sakar_librarian)
         session.commit()
 
+load_dotenv()
 
+host = os.getenv('host')
+database = os.getenv('database')
+user = os.getenv('user')
+password = os.getenv('password')
+
+
+url = URL.create(
+    database=database,
+    username=user,
+    password=password,
+    host=host,
+    drivername="postgresql"
+)
+engine = create_engine(url)
+session = Session(bind=engine)
+tables = inspect(engine).get_table_names()
+
+if len(tables) < 9:
+    error_assci()
+    print("Incomplete Database found, Deleting the database to create a new one from scratch")
+    print("Do you want to continue??(Y/N)")
+    user_in = input("\n\t:").strip().lower()
+    if user_in == 'n':
+        exit()
+    dummy_data = False
+    dummy = input("Do you want a dummy data on databse?(y/n)").strip().lower()
+    if dummy == 'y':
+        dummy_data = True
+    if tables:
+        table_string = ", ".join(tables)
+        session.execute(text(f"DROP TABLE {table_string};"))
+    create_database(engine,  dummy_data, session,)
+    print("Database Created")
 
